@@ -1,12 +1,16 @@
 # An unstructured set of helper functions.
 
+## Installation
+
+`pip install git+https://github.com/ternaus/helper_functions`
+
 
 ## OpenImages 2019 Challenge:
 
 To map data from OpenImages to mmdetection: 
 
 ```bash
-python -m src.data_processing.open_images.instance2mmdetection \
+python -m helper_functions.src.data_processing.open_images.instance2mmdetection \
 -a <path to annotation csv file> \
 -i <path to train images> \
 -m <path to train masks> \

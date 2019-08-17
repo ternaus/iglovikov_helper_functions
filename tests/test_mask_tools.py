@@ -22,6 +22,7 @@ def test_rle():
 
     assert rle == inversed_rle
 
+
 def test_kaggle_rle():
     for _ in range(10):
         h = np.random.randint(1, 1000)

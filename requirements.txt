@@ -5,5 +5,3 @@ albumentations
 Pillow
 joblib
 scikit-learn
-torch
-catalyst

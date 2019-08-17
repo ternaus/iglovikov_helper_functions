@@ -17,4 +17,3 @@ def test_py2cfg():
     assert cfg.a == 1
     assert cfg.b == 3
     assert cfg.c == range(10)
-

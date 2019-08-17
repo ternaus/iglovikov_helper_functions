@@ -72,7 +72,7 @@ def group2mmdetection(group, mask_path: Path, sizes: dict, categories: dict) -> 
 
 
 def get_name2size(image_path: Path, num_jobs: int) -> dict:
-    """Returns image to size mapping.
+    """Return image to size mapping.
 
     Args:
         image_path: Path where images are stored.
@@ -81,7 +81,6 @@ def get_name2size(image_path: Path, num_jobs: int) -> dict:
     Returns: {<file_name>}: (width, height)
 
     """
-
     def helper(x):
         image = Image.open(x)
         return x.stem, image.size
@@ -93,14 +92,14 @@ def get_name2size(image_path: Path, num_jobs: int) -> dict:
 
 
 def get_categories(categories_path: Path) -> dict:
-    """Creates mapping from class name to category_id. Categories start with 1.
+    """Create mapping from class name to category_id. Categories start with 1.
 
     Args:
         categories_path: Path to the file challenge-2019-classes-description-segmentable.csv
 
     Returns: {class_name: category_id}
-    """
 
+    """
     classes = pd.read_csv(str(categories_path), header=None)
 
     return dict(zip(classes[1].values, classes.index + 1))

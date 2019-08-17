@@ -1,4 +1,4 @@
-Cython
+Cython>=0.
 pycocotools
 numpy
 pandas

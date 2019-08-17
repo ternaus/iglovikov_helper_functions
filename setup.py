@@ -19,7 +19,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 try:
     with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
         REQUIRED = f.read().split('\n')
-except:
+except FileNotFoundError:
     REQUIRED = []
 
 # What packages are optional?

@@ -21,17 +21,17 @@ path to images
 
 import argparse
 import pickle
+from pathlib import Path
 
+import cv2
+import numpy as np
 import pandas as pd
+from PIL import Image
+from joblib import Parallel, delayed
+from pycocotools import mask as mutils
 from tqdm import tqdm
 
-from pycocotools import mask as mutils
-import numpy as np
-from pathlib import Path
-from joblib import Parallel, delayed
-from PIL import Image
-import cv2
-from helper_functions.src.utils.mask_tools import kaggle2coco, kaggle_rle_encode
+from helper_functions.utils.mask_tools import kaggle2coco, kaggle_rle_encode
 
 
 def group2mmdetection(group, mask_path: Path, sizes: dict, categories: dict) -> dict:
@@ -81,6 +81,7 @@ def get_name2size(image_path: Path, num_jobs: int) -> dict:
     Returns: {<file_name>}: (width, height)
 
     """
+
     def helper(x):
         image = Image.open(x)
         return x.stem, image.size

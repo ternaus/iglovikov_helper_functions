@@ -1,4 +1,6 @@
 Cython
+cython
+pycocotools
 numpy
 pandas
 tqdm
@@ -6,4 +8,3 @@ albumentations
 Pillow
 joblib
 scikit-learn
-pycocotools

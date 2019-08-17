@@ -6,7 +6,7 @@
 To map data from OpenImages to mmdetection: 
 
 ```bash
-python -m src.data_processing.open_images.instance2mmdetection \
+python -m helper_functions.src.data_processing.open_images.instance2mmdetection \
 -a <path to annotation csv file> \
 -i <path to train images> \
 -m <path to train masks> \

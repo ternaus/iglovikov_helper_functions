@@ -31,7 +31,7 @@ from pathlib import Path
 from joblib import Parallel, delayed
 from PIL import Image
 import cv2
-from src.utils.mask_tools import kaggle2coco, kaggle_rle_encode
+from helper_functions.src.utils.mask_tools import kaggle2coco, kaggle_rle_encode
 
 
 def group2mmdetection(group, mask_path: Path, sizes: dict, categories: dict) -> dict:

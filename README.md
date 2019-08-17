@@ -1,5 +1,9 @@
 # An unstructured set of helper functions.
 
+## Installation
+
+`pip install git+https://github.com/ternaus/helper_functions`
+
 
 ## OpenImages 2019 Challenge:
 

@@ -1,4 +1,4 @@
-from helper_functions.src.config_parsing.from_py import py2dict
+from helper_functions.config_parsing.from_py import py2dict
 
 
 def test_py2dict():

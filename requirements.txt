@@ -1,5 +1,4 @@
 Cython
-cython
 pycocotools
 numpy
 pandas

@@ -3,3 +3,4 @@ pandas
 tqdm
 Pillow
 joblib
+addict

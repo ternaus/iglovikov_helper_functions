@@ -4,6 +4,26 @@ import sys
 from importlib import import_module
 from pathlib import Path
 
+from addict import Dict
+
+
+class ConfigDict(Dict):
+
+    def __missing__(self, name):
+        raise KeyError(name)
+
+    def __getattr__(self, name):
+        try:
+            value = super(ConfigDict, self).__getattr__(name)
+        except KeyError:
+            ex = AttributeError("'{}' object has no attribute '{}'".format(
+                self.__class__.__name__, name))
+        except Exception as e:
+            ex = e
+        else:
+            return value
+        raise ex
+
 
 def py2dict(file_path: (str, Path)) -> dict:
     """Convert python file to dictionary.
@@ -52,3 +72,9 @@ def py2dict(file_path: (str, Path)) -> dict:
     }
 
     return cfg_dict
+
+
+def py2cfg(file_path: (str, Path)):
+    cfg_dict = py2dict(file_path)
+
+    return ConfigDict(cfg_dict)

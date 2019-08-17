@@ -46,7 +46,7 @@ def mask2rle(mask: np.array) -> str:
 
     tmp = tmp.reshape(-1, 1)
     for i in range(len(tmp)):
-        if (lastColor == 0) and tmp[i] > 0:
+        if lastColor == 0 and tmp[i] > 0:
             startpos = i
             lastColor = 1
         elif (lastColor == 1) and (tmp[i] == 0):

@@ -10,7 +10,7 @@ jobs:
         - run: sudo pip install coverage flake8 pytest
         - run: python --version ; pip --version ; pwd ; ls
         - run: flake8 . --count --statistics
-#        - run: pytest
+        - run: pytest
 
 workflows:
   version: 2

@@ -70,16 +70,14 @@ def group2mmdetection(group, mask_path: Path, sizes: dict, categories: dict) -> 
     }
 
 
-def get_name2size(
-    image_path: Path, num_jobs: int, extenstion: str = "jpg", type="stem"
-) -> dict:
+def get_name2size(image_path: Path, num_jobs: int, extenstion: str = "jpg", id_type: str = "stem") -> dict:
     """Return image to size mapping.
 
     Args:
         image_path: Path where images are stored.
         num_jobs: number of CPU threads to use.
         extenstion: 'jpg' or 'png'
-        type: `name` or `stem`
+        id_type: `name` or `stem`
 
     Returns: {<file_name>}: (width, height)
 
@@ -87,16 +85,15 @@ def get_name2size(
 
     def helper(x):
         image = Image.open(x)
-        if type == "stem":
+        if id_type == "stem":
             return x.stem, image.size
-        elif type == "name":
+        elif id_type == "name":
             return x.name, image.size
         else:
             raise NotImplementedError("only name and stem are supported")
 
     sizes = Parallel(n_jobs=num_jobs)(
-        delayed(helper)(file_name)
-        for file_name in tqdm(sorted(image_path.glob(f"*.{extenstion}")))
+        delayed(helper)(file_name) for file_name in tqdm(sorted(image_path.glob(f"*.{extenstion}")))
     )
 
     return dict(sizes)
@@ -118,25 +115,13 @@ def get_categories(categories_path: Path) -> dict:
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-a", "--annotation", type=str, help="Path to the annotation file."
-    )
+    parser.add_argument("-a", "--annotation", type=str, help="Path to the annotation file.")
     parser.add_argument("-i", "--image_path", type=Path, help="Path to images.")
     parser.add_argument("-m", "--mask_path", type=Path, help="Path to masks.")
-    parser.add_argument(
-        "-c", "--classes", type=Path, help="Path to file with class mapping."
-    )
+    parser.add_argument("-c", "--classes", type=Path, help="Path to file with class mapping.")
 
-    parser.add_argument(
-        "-o",
-        "--output",
-        type=str,
-        help="Path where to store pickled data.",
-        required=True,
-    )
-    parser.add_argument(
-        "-j", "--num_jobs", type=int, default=1, help="Number of jobs to spawn."
-    )
+    parser.add_argument("-o", "--output", type=str, help="Path where to store pickled data.", required=True)
+    parser.add_argument("-j", "--num_jobs", type=int, default=1, help="Number of jobs to spawn.")
     return parser.parse_args()
 
 
@@ -144,8 +129,8 @@ def main():
     args = parse_args()
     annotation = pd.read_csv(args.annotation)
 
-    image_sizes = get_name2size(args.image_path, args.num_jobs, "jpg", type="stem")
-    mask_sizes = get_name2size(args.image_path, args.num_jobs, "png", type="name")
+    image_sizes = get_name2size(args.image_path, args.num_jobs, "jpg", id_type="stem")
+    mask_sizes = get_name2size(args.mask_path, args.num_jobs, "png", id_type="name")
 
     categories = get_categories(args.classes)
 
@@ -165,8 +150,7 @@ def main():
     groups = annotation.groupby("ImageID")
 
     samples = Parallel(n_jobs=args.num_jobs)(
-        delayed(group2mmdetection)(group, args.mask_path, image_sizes, categories)
-        for group in tqdm(groups)
+        delayed(group2mmdetection)(group, args.mask_path, image_sizes, categories) for group in tqdm(groups)
     )
 
     with open(args.output, "wb") as f:

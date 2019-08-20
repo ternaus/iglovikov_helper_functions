@@ -2,7 +2,7 @@ from helper_functions.config_parsing.from_py import py2dict, py2cfg
 
 
 def test_py2dict():
-    result_dict = py2dict('tests/data/temp_config.py')
+    result_dict = py2dict("tests/data/temp_config.py")
 
     target_dict = dict(a=1, b=3, c=range(10))
 
@@ -12,7 +12,7 @@ def test_py2dict():
 
 
 def test_py2cfg():
-    cfg = py2cfg('tests/data/temp_config.py')
+    cfg = py2cfg("tests/data/temp_config.py")
 
     assert cfg.a == 1
     assert cfg.b == 3

@@ -24,7 +24,7 @@ def rle2mask(src_string: str, size: tuple) -> np.array:
 
     current_position = 0
     for index, first in enumerate(starts):
-        mark[int(first):int(first + ends[index])] = 1
+        mark[int(first) : int(first + ends[index])] = 1
         current_position += ends[index]
 
     return mark.reshape(width, height).T
@@ -52,7 +52,7 @@ def mask2rle(mask: np.array) -> str:
         elif (lastColor == 1) and (tmp[i] == 0):
             endpos = i - 1
             lastColor = 0
-            rle.append(str(startpos) + ' ' + str(endpos - startpos + 1))
+            rle.append(str(startpos) + " " + str(endpos - startpos + 1))
     return " ".join(rle)
 
 
@@ -75,9 +75,9 @@ def kaggle_rle_decode(rle, h, w):
 
 
 def coco_rle_encode(mask):
-    rle = {'counts': [], 'size': list(mask.shape)}
-    counts = rle.get('counts')
-    for i, (value, elements) in enumerate(groupby(mask.ravel(order='F'))):
+    rle = {"counts": [], "size": list(mask.shape)}
+    counts = rle.get("counts")
+    for i, (value, elements) in enumerate(groupby(mask.ravel(order="F"))):
         if i == 0 and value == 1:
             counts.append(0)
         counts.append(len(list(elements)))
@@ -90,7 +90,7 @@ def coco_rle_decode(rle, h, w):
 
 def kaggle2coco(kaggle_rle, height, width):
     if not len(kaggle_rle):
-        return {'counts': [height * width], 'size': [height, width]}
+        return {"counts": [height * width], "size": [height, width]}
     roll2 = np.roll(kaggle_rle, 2)
     roll2[:2] = 1
 
@@ -104,6 +104,6 @@ def kaggle2coco(kaggle_rle, height, width):
         shift = 0
         end_value = 0
     coco_rle = np.full(len(kaggle_rle) + shift, end_value)
-    coco_rle[:len(coco_rle) - shift] = kaggle_rle.copy()
-    coco_rle[:len(coco_rle) - shift:2] = (kaggle_rle - roll1 - roll2)[::2].copy()
-    return {'counts': coco_rle.tolist(), 'size': [height, width]}
+    coco_rle[: len(coco_rle) - shift] = kaggle_rle.copy()
+    coco_rle[: len(coco_rle) - shift : 2] = (kaggle_rle - roll1 - roll2)[::2].copy()
+    return {"counts": coco_rle.tolist(), "size": [height, width]}

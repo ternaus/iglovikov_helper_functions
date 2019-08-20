@@ -27,7 +27,7 @@ def rle2mask(src_string: str, size: tuple) -> np.array:
         mark[int(first):int(first + ends[index])] = 1
         current_position += ends[index]
 
-    return np.flipud(np.rot90(mark.reshape(width, height), k=1))
+    return np.transpose(mark.reshape(width, height))
 
 
 def mask2rle(mask: np.array) -> str:

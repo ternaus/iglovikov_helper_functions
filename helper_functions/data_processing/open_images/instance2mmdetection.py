@@ -82,6 +82,7 @@ def get_name2size(image_path: Path, num_jobs: int, extenstion: str = "jpg", id_t
     Returns: {<file_name>}: (width, height)
 
     """
+
     def helper(x):
         image = Image.open(x)
         if id_type == "stem":

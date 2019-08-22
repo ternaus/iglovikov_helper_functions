@@ -1,10 +1,10 @@
 """
 The script reads the data from openimages Challenge 2019
 
-(https://www.kaggle.com/c/open-images-2019-instance-segmentation)
+https://www.kaggle.com/c/open-images-2019-instance-segmentation
 
-CSV files + images + masks and outputs pkl file with instance
-segmentation labels.
+CSV files + images + masks and outputs json file with instance
+segmentation labels in COCO format.
 
 
 Requires:
@@ -31,7 +31,7 @@ from joblib import Parallel, delayed
 from pycocotools import mask as mutils
 from tqdm import tqdm
 
-from helper_functions.utils.mask_tools import kaggle2coco, kaggle_rle_encode
+from helper_functions.utils.mask_tools import kaggle2coco, kaggle_rle_encode, binary_mask2coco
 
 
 def group2mmdetection(group, mask_path: Path, sizes: dict, categories: dict) -> dict:
@@ -47,9 +47,7 @@ def group2mmdetection(group, mask_path: Path, sizes: dict, categories: dict) -> 
         png = (cv2.imread(str(mask_path / mask_file_name), 0) > 0).astype(np.uint8)
         png = cv2.resize(png, (image_width, image_height), cv2.INTER_NEAREST)
 
-        rle = kaggle_rle_encode(png)
-
-        rles += [kaggle2coco(rle, image_height, image_width)]
+        encoded = binary_mask2coco(png)
 
     rles = mutils.frPyObjects(rles, image_height, image_width)
     masks = mutils.decode(rles)

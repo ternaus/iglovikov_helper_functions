@@ -5,6 +5,24 @@ import numpy as np
 from skimage import measure
 
 
+def coco_seg2bbox(polygons, image_height: int, image_width: int) -> list:
+    """Converts polygons in COCO format to bounding box in pixels.
+
+    Args:
+        polygons:
+        image_height: Height of the target image.
+        image_width: Width of the target image.
+
+    Returns: [x_min, y_min, width, height]
+
+    """
+    rles = mutils.frPyObjects(polygons, image_height, image_width)
+    mask = mutils.decode(rles)
+    bbox = mutils.toBbox(mutils.encode(np.asfortranarray(mask.astype(np.uint8))))
+
+    return bbox[0].astype(int).tolist()
+
+
 def close_contour(contour):
     if not np.array_equal(contour[0], contour[-1]):
         contour = np.vstack((contour, contour[0]))

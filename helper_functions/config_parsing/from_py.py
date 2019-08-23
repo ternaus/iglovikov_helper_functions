@@ -48,7 +48,7 @@ def py2dict(file_path: (str, Path)) -> dict:
     """
     file_path = Path(file_path).absolute()
 
-    assert file_path.suffix == ".py", f"Only Py file can be parsed, but got {file_path.name} instead."
+    assert file_path.suffix == ".py", "Only Py file can be parsed, but got {} instead.".format(file_path.name)
 
     assert file_path.exists(), f"There is no file at the path {file_path}"
 

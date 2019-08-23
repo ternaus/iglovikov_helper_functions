@@ -5,3 +5,4 @@ Pillow
 joblib
 addict
 black
+scikit-image

@@ -3,7 +3,9 @@
 
 ## Installation
 
-`pip install git+https://github.com/ternaus/helper_functions`
+`pip install -U iglovikov_helper_functions`
+
+`pip install git+https://github.com/ternaus/iglovikov_helper_functions`
 
 
 ## OpenImages 2019 Challenge:
@@ -11,7 +13,7 @@
 To map data from OpenImages to mmdetection:
 
 ```bash
-python -m helper_functions.src.data_processing.open_images.instance2coco \
+python -m iglovikov_helper_functions.src.data_processing.open_images.instance2coco \
 -a <path to annotation csv file> \
 -i <path to train images> \
 -m <path to train masks> \

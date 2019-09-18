@@ -1,6 +1,6 @@
 import numpy as np
 
-from helper_functions.utils.mask_tools import (
+from iglovikov_helper_functions.utils.mask_tools import (
     binary_mask2coco,
     coco_rle_decode,
     coco_rle_encode,

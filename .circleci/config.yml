@@ -10,7 +10,7 @@ jobs:
         - run: sudo pip install -r requirements.txt
         - run: sudo pip install pycocotools
         - run: python --version ; pip --version ; pwd ; ls
-        - run: isort --rc --check-only
+        - run: isort -rc --check-only
         - run: black . --check
         - run: flake8 . --count --statistics
         - run: sudo pip install -e .

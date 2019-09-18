@@ -8,7 +8,7 @@
 
 ## OpenImages 2019 Challenge:
 
-To map data from OpenImages to mmdetection: 
+To map data from OpenImages to mmdetection:
 
 ```bash
 python -m helper_functions.src.data_processing.open_images.instance2coco \
@@ -18,3 +18,7 @@ python -m helper_functions.src.data_processing.open_images.instance2coco \
 -c <path to csv file with class description> \
 -o train.pkl
 ```
+
+## Cityscapes
+
+To map the data to the standard format follow [How to map Cityscapes](data_processing/cityscapes/README.md)

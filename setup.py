@@ -6,9 +6,9 @@ from shutil import rmtree
 from setuptools import Command, find_packages, setup
 
 # Package meta-data.
-NAME = "helper_functions"
+NAME = "iglovikov_helper_functions"
 DESCRIPTION = "Unstructured set of the helper functions."
-URL = "https://github.com/ternaus/helper_functions"
+URL = "https://github.com/ternaus/iglovikov_helper_functions"
 EMAIL = "iglovikov@gmail.com"
 AUTHOR = "Vladimir Iglovikov"
 REQUIRES_PYTHON = ">=3.0.0"

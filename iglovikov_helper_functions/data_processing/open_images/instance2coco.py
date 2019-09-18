@@ -30,7 +30,7 @@ from joblib import Parallel, delayed
 from PIL import Image
 from tqdm import tqdm
 
-from helper_functions.utils.mask_tools import binary_mask2coco, coco_seg2bbox
+from iglovikov_helper_functions.utils.mask_tools import binary_mask2coco, coco_seg2bbox
 
 
 def get_annotation_info(image_id: str, dft: pd.DataFrame, hash2id: dict, image_sizes: dict, mask_path: Path) -> list:

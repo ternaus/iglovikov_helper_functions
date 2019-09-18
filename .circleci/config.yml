@@ -6,10 +6,11 @@ jobs:
         - image: circleci/python:3.6
       steps:
         - checkout
-        - run: sudo pip install coverage flake8 pytest Cython
+        - run: sudo pip install Cython
         - run: sudo pip install -r requirements.txt
         - run: sudo pip install pycocotools
         - run: python --version ; pip --version ; pwd ; ls
+        - run: isort -rc --check-only
         - run: black . --check
         - run: flake8 . --count --statistics
         - run: sudo pip install -e .

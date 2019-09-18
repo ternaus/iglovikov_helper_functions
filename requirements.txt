@@ -1,8 +1,11 @@
-numpy
-pandas
-tqdm
-Pillow
-joblib
 addict
 black
+flake8
+isort
+joblib
+numpy
+pandas
+Pillow
+pytest
 scikit-image
+tqdm

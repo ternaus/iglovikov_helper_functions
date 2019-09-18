@@ -26,8 +26,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pandas as pd
-from PIL import Image
 from joblib import Parallel, delayed
+from PIL import Image
 from tqdm import tqdm
 
 from helper_functions.utils.mask_tools import binary_mask2coco, coco_seg2bbox

@@ -1,14 +1,14 @@
 import numpy as np
 
 from helper_functions.utils.mask_tools import (
-    rle2mask,
-    mask2rle,
-    kaggle_rle_decode,
-    kaggle2coco,
-    coco_rle_encode,
-    coco_rle_decode,
-    kaggle_rle_encode,
     binary_mask2coco,
+    coco_rle_decode,
+    coco_rle_encode,
+    kaggle2coco,
+    kaggle_rle_decode,
+    kaggle_rle_encode,
+    mask2rle,
+    rle2mask,
 )
 
 

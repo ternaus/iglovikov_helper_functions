@@ -1,7 +1,8 @@
 """Set of scripts to work with masks."""
 from itertools import groupby
-from pycocotools import mask as mutils
+
 import numpy as np
+from pycocotools import mask as mutils
 from skimage import measure
 
 

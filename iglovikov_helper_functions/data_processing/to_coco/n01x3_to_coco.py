@@ -74,9 +74,9 @@ def json2df(input_file):
     dfs = []
 
     for file_name, bboxes in input_file.items():
-        if len(bboxes) == 5:
+        if len(bboxes[0]) == 5:
             columns = ["name", "x_min", "y_min", "x_max", "y_max"]
-        elif len(bboxes) == 5:
+        elif len(bboxes[0]) == 6:
             columns = ["name", "score", "x_min", "y_min", "x_max", "y_max"]
         else:
             raise NotImplementedError()
@@ -87,7 +87,7 @@ def json2df(input_file):
 
         dfs += [df]
 
-    df = pd.concatenat(dfs).reset_index(drop=True)
+    df = pd.concat(dfs).reset_index(drop=True)
 
     df["x_min"] = df["x_min"].astype(int)
     df["y_min"] = df["y_min"].astype(int)
@@ -112,14 +112,14 @@ def main():
 
     coco_categories = []
     for i, label in enumerate(sorted(df["name"].unique())):
-        name2id[i + 1] = label
+        name2id[label] = i + 1
         coco_categories.append({"id": i + 1, "name": label})
 
-    if df.shape[1] == 5:  # ground truth coco_annotations
+    if df.shape[1] == 8:  # ground truth coco_annotations
         coco_images = []
         coco_annotations = []
 
-        for image_name, dft in tqdm(df.groupby("image_id")):
+        for image_name, dft in tqdm(df.groupby("image_name")):
             image_id = Path(image_name).stem
 
             image_info = {"id": image_id, "file_name": image_name}
@@ -130,7 +130,7 @@ def main():
                 width = int(dft.loc[i, "width"])
                 height = int(dft.loc[i, "height"])
 
-                class_name = dft.loc[i, "class_name"]
+                class_name = dft.loc[i, "name"]
 
                 annotation_id = str(hash(image_id + "_{}".format(i)))
 
@@ -151,14 +151,14 @@ def main():
             "annotations": coco_annotations,
         }
 
-    elif df.shape[1] == 4:  # predictions
+    elif df.shape[1] == 9:  # predictions
         output_coco_annotations = []
         for i in tqdm(df.index):
             x_min = df.loc[i, "x_min"]
             y_min = df.loc[i, "y_min"]
             width = df.loc[i, "width"]
             height = df.loc[i, "height"]
-            class_name = df.loc[i, "class_name"]
+            class_name = df.loc[i, "name"]
             score = df.loc[i, "score"]
             image_id = Path(df.loc[i, "image_name"]).stem
 

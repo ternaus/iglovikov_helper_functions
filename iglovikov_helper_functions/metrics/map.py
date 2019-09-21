@@ -199,11 +199,13 @@ if __name__ == "__main__":
 
     category2name = get_category2name(categories)
 
-    class_names = sorted(category2name.values())
+    num_class_names = len(category2name.values())
 
-    print("Class_names in ground truth = ", class_names)
+    print("Class_names in ground truth = ", sorted(category2name.values()))
 
-    aps = np.zeros(len(class_names))
+    aps = np.zeros(num_class_names)
+
+    class_names = []
 
     for i, category_id in enumerate(category2name.keys()):
         if category_id in pred_by_id:  # if we predicted at leas one object for this class.
@@ -211,6 +213,8 @@ if __name__ == "__main__":
                 gt_by_id[category_id], pred_by_id[category_id], args.iou_threshold
             )
             aps[i] = average_precision
+
+        class_names += [category2name[category_id]]
 
     mAP = np.mean(aps)
     print("Average per class mean average precision = ", mAP)

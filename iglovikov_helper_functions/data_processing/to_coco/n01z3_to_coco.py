@@ -146,7 +146,7 @@ def main():
                     "category_id": name2id[class_name],
                     "bbox": [x_min, y_min, width, height],
                     "iscrowd": 0,
-                    "area": area
+                    "area": area,
                 }
 
                 coco_annotations.append(annotation_info)

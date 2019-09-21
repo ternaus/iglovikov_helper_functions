@@ -6,8 +6,6 @@ predictions = {image_001.jpg: [[bottle, 0.14981, 80, 1, 295, 500], ...], ...}
 
 where bounding box coordinates are represented as [x_min, y_min, x_max, y_max]
 
-WARNING! To make ground_truth and predictions consistent make sure that they have the same number of classes!
-
 to simplified COCO format that should be enough to use pycocotools.
 
 
@@ -32,7 +30,7 @@ For ground truth:
         "id": annotation_id,
         "image_id": image_id,
         "category_id": category_id,
-        "bbox": [x_min, x_max, y_min, y_max]
+        "bbox": [x_min, y_min, width, height]
         }
     ]
 
@@ -45,11 +43,13 @@ For predictions:
         "id": annotation_id,
         "image_id": image_id,
         "category_id": category_id,
-        "bbox": [x_min, x_max, y_min, y_max]
+        "bbox": [x_min, y_min, width, height]
         "score": score
         }
 
 ]
+
+WARNING! To make ground_truth and predictions consistent make sure that they have the same number of classes!
 
 
 Based on the request from Arthur Kuzin (n01z3).

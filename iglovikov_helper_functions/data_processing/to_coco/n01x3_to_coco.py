@@ -154,10 +154,10 @@ def main():
     elif df.shape[1] == 9:  # predictions
         output_coco_annotations = []
         for i in tqdm(df.index):
-            x_min = df.loc[i, "x_min"]
-            y_min = df.loc[i, "y_min"]
-            width = df.loc[i, "width"]
-            height = df.loc[i, "height"]
+            x_min = int(df.loc[i, "x_min"])
+            y_min = int(df.loc[i, "y_min"])
+            width = int(df.loc[i, "width"])
+            height = int(df.loc[i, "height"])
             class_name = df.loc[i, "name"]
             score = df.loc[i, "score"]
             image_id = Path(df.loc[i, "image_name"]).stem

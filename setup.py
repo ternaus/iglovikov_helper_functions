@@ -12,7 +12,7 @@ URL = "https://github.com/ternaus/iglovikov_helper_functions"
 EMAIL = "iglovikov@gmail.com"
 AUTHOR = "Vladimir Iglovikov"
 REQUIRES_PYTHON = ">=3.0.0"
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 
 here = os.path.abspath(os.path.dirname(__file__))
 

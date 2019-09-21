@@ -31,6 +31,8 @@ For ground truth:
         "image_id": image_id,
         "category_id": category_id,
         "bbox": [x_min, y_min, width, height]
+        "area": width * height,
+        "iscrowd": 0
         }
     ]
 
@@ -44,7 +46,9 @@ For predictions:
         "image_id": image_id,
         "category_id": category_id,
         "bbox": [x_min, y_min, width, height]
-        "score": score
+        "score": score,
+        "area": width * height,
+        "iscrowd": 0
         }
 
 ]
@@ -130,6 +134,8 @@ def main():
                 width = int(dft.loc[i, "width"])
                 height = int(dft.loc[i, "height"])
 
+                area = width * height
+
                 class_name = dft.loc[i, "class_name"]
 
                 annotation_id = str(hash(image_id + "_{}".format(i)))
@@ -139,6 +145,8 @@ def main():
                     "image_id": image_id,
                     "category_id": name2id[class_name],
                     "bbox": [x_min, y_min, width, height],
+                    "iscrowd": 0,
+                    "area": area
                 }
 
                 coco_annotations.append(annotation_info)
@@ -158,6 +166,9 @@ def main():
             y_min = df.loc[i, "y_min"]
             width = df.loc[i, "width"]
             height = df.loc[i, "height"]
+
+            area = width * height
+
             class_name = df.loc[i, "class_name"]
             score = df.loc[i, "score"]
             image_id = Path(df.loc[i, "image_name"]).stem
@@ -170,6 +181,8 @@ def main():
                 "category_id": name2id[class_name],
                 "bbox": [x_min, y_min, width, height],
                 "score": score,
+                "area": area,
+                "iscrowd": 0,
             }
 
             output_coco_annotations += [annotation_info]

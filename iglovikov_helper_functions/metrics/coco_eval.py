@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     print_results(coco_eval)
 
-    for key, value in categories.items():
+    for value in categories.values():
         category_id = value["id"]
         class_name = value["name"]
         print("-------------------------------------------------------------------------------")

@@ -119,10 +119,8 @@ def main():
     old_train_image_folder = args.data_path / "Train Imgs"
     old_test_image_folder = args.data_path / "Test" / "Test_imgs"
 
-    train_image_ids = set([x.stem for x in old_train_image_folder.glob("*.jpg")])
-    train_mask_ids = set(
-        [x.stem.replace("_classimg_nonconvex", "") for x in (args.data_path / "Maps1_T").glob("*.png")]
-    )
+    train_image_ids = {x.stem for x in old_train_image_folder.glob("*.jpg")}
+    train_mask_ids = {x.stem.replace("_classimg_nonconvex", "") for x in (args.data_path / "Maps1_T").glob("*.png")}
 
     mapping = get_mapping()
 

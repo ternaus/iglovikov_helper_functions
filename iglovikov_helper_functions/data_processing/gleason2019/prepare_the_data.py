@@ -98,9 +98,9 @@ def prepare_folders(data_path: Path) -> tuple:
 
 
 def get_mapping() -> np.array:
-    mapping = np.array([0] * 256)
-    # mapping[1] = 0
-    # mapping[6] = 0
+    mapping = np.arange(0, 256, dtype=np.uint8)
+    mapping[1] = 0
+    mapping[6] = 0
     mapping[3] = 1
     mapping[4] = 2
     mapping[5] = 3
@@ -115,6 +115,8 @@ def main():
 
     old_train_image_folder = args.data_path / "Train Imgs"
     old_test_image_folder = args.data_path / "Test" / "Test_imgs"
+
+    mapping = get_mapping()
 
     for old_file_name in tqdm(sorted(old_train_image_folder.glob("*.jpg"))):
         new_file_name = train_image_path / old_file_name.name
@@ -135,6 +137,10 @@ def main():
                 mask_list += [mask]
 
         mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
+
+        mask = cv2.LUT(mask, mapping)
+
+        assert 0 <= mask.max() <= 3
 
         cv2.imwrite(str(train_mask_path / file_name.name.replace("_classimg_nonconvex", "")), mask)
 

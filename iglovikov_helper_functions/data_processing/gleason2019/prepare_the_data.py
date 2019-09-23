@@ -140,7 +140,8 @@ def main():
 
         mask = cv2.LUT(mask, mapping)
 
-        assert 0 <= mask.max() <= 3
+        if not 0 <= mask.max() <= 3:
+            raise ValueError()
 
         cv2.imwrite(str(train_mask_path / file_name.name.replace("_classimg_nonconvex", "")), mask)
 

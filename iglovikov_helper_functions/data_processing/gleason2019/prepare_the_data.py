@@ -62,6 +62,9 @@ Labels 0, 1, 6 => 0
 Label 3 => 1
 Label 4 => 2
 Label 5 => 3
+
+
+If there is an image without mask or mask without image => removed.
 """
 
 import argparse
@@ -116,9 +119,16 @@ def main():
     old_train_image_folder = args.data_path / "Train Imgs"
     old_test_image_folder = args.data_path / "Test" / "Test_imgs"
 
+    train_image_ids = set([x.stem for x in old_train_image_folder.glob("*.jpg")])
+    train_mask_ids = set(
+        [x.stem.replace("_classimg_nonconvex", "") for x in (args.data_path / "Maps1_T").glob("*.png")]
+    )
+
     mapping = get_mapping()
 
     for old_file_name in tqdm(sorted(old_train_image_folder.glob("*.jpg"))):
+        if old_file_name.stem not in train_mask_ids:
+            continue
         new_file_name = train_image_path / old_file_name.name
 
         shutil.copy(str(old_file_name), str(new_file_name))
@@ -129,6 +139,8 @@ def main():
         shutil.copy(str(old_file_name), str(new_file_name))
 
     for file_name in tqdm(sorted((args.data_path / "Maps1_T").glob("*.png"))):
+        if file_name.stem.replace("_classimg_nonconvex", "") not in train_image_ids:
+            continue
         mask_list = []
         for num_expert in range(6):
             mask_path = args.data_path / f"Maps{num_expert}_T" / file_name.name

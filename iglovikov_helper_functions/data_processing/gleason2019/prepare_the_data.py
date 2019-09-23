@@ -99,8 +99,8 @@ def prepare_folders(data_path: Path) -> tuple:
 
 def get_mapping() -> np.array:
     mapping = np.array([0] * 256)
-    mapping[1] = 0
-    mapping[6] = 0
+    # mapping[1] = 0
+    # mapping[6] = 0
     mapping[3] = 1
     mapping[4] = 2
     mapping[5] = 3
@@ -136,7 +136,7 @@ def main():
 
         mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
 
-        cv2.imwrite(str(train_mask_path / file_name.name), mask)
+        cv2.imwrite(str(train_mask_path / file_name.name.replace("_classimg_nonconvex", "")), mask)
 
 
 if __name__ == "__main__":

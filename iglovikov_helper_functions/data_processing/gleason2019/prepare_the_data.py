@@ -100,7 +100,7 @@ def prepare_folders(data_path: Path) -> tuple:
     test_image_path = data_path / "test" / "images"
     test_image_path.mkdir(exist_ok=True, parents=True)
 
-    return train_image_path, train_mask_path, test_image_path
+    return train_image_path, test_image_path
 
 
 def get_mapping() -> np.array:
@@ -125,7 +125,7 @@ def merge_masks(file_path: str):
                 mask = cv2.imread(str(mask_path), 0)
                 mask_list += [mask]
 
-        if len(mask_list) > 0:
+        if mask_list:
             mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
             mask = cv2.LUT(mask, get_mapping())
 
@@ -141,7 +141,7 @@ def merge_masks(file_path: str):
 def main():
     args = parse_args()
 
-    train_image_path, train_mask_path, test_image_path = prepare_folders(args.data_path)
+    train_image_path, test_image_path = prepare_folders(args.data_path)
 
     old_train_image_folder = args.data_path / "Train_imgs"
     old_test_image_folder = args.data_path / "Test_imgs"

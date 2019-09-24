@@ -114,7 +114,7 @@ def get_mapping() -> np.array:
     return mapping
 
 
-def merge_masks(file_path):
+def merge_masks(file_path: str):
     mask_list = []
     file_path = Path(file_path)
     final_mask_path = file_path.parents[1] / "train" / "masks" / (file_path.stem + ".png")
@@ -134,7 +134,8 @@ def merge_masks(file_path):
 
             cv2.imwrite(str(final_mask_path), mask)
         else:
-            print("No masks for img: ", file_path)
+            print("No masks, removing img from train: ", file_path)
+            file_path.unlink()
 
 
 def main():

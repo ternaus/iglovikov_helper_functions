@@ -8,4 +8,5 @@ pandas
 Pillow
 pytest
 scikit-image
+scikit-learn
 tqdm

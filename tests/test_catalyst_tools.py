@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from iglovikov_helper_functions.dl.catalyst.metrics import calculate_confusion_matrix_from_arrays
+from iglovikov_helper_functions.dl.catalyst.metrics import calculate_confusion_matrix_from_arrays_fast
 
 
 def test_confusion_matrix():
@@ -8,7 +8,7 @@ def test_confusion_matrix():
     y_true = np.random.randint(low=0, high=25, size=(5, 7)).flatten()
     y_pred = np.random.randint(low=0, high=num_classes - 1, size=(5, 7)).flatten()
 
-    normal_cm = calculate_confusion_matrix_from_arrays(y_true, y_pred, num_classes=num_classes)
+    normal_cm = calculate_confusion_matrix_from_arrays_fast(y_true, y_pred, num_classes=num_classes)
     sklearn_cm = confusion_matrix(y_true, y_pred, labels=range(num_classes))
 
     assert normal_cm.shape == sklearn_cm.shape

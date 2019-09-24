@@ -2,7 +2,7 @@ import io
 import os
 import sys
 from shutil import rmtree
-
+import re
 from setuptools import Command, find_packages, setup
 
 # Package meta-data.
@@ -12,13 +12,21 @@ URL = "https://github.com/ternaus/iglovikov_helper_functions"
 EMAIL = "iglovikov@gmail.com"
 AUTHOR = "Vladimir Iglovikov"
 REQUIRES_PYTHON = ">=3.0.0"
-VERSION = "0.0.7"
 
-here = os.path.abspath(os.path.dirname(__file__))
+current_dir = os.path.abspath(os.path.dirname(__file__))
+
+
+def get_version():
+    version_file = os.path.join(current_dir, NAME, "__init__.py")
+    with io.open(version_file, encoding="utf-8") as f:
+        return re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]', f.read(), re.M).group(1)
+
+
+VERSION = get_version()
 
 # What packages are required for this module to be executed?
 try:
-    with open(os.path.join(here, "requirements.txt"), encoding="utf-8") as f:
+    with open(os.path.join(current_dir, "requirements.txt"), encoding="utf-8") as f:
         REQUIRED = f.read().split("\n")
 except FileNotFoundError:
     REQUIRED = []
@@ -29,7 +37,7 @@ EXTRAS = {"test": ["pytest"]}
 # Load the package's __version__.py module as a dictionary.
 about = {}
 if not VERSION:
-    with open(os.path.join(here, NAME, "__version__.py")) as f:
+    with open(os.path.join(current_dir, NAME, "__version__.py")) as f:
         exec(f.read(), about)
 else:
     about["__version__"] = VERSION
@@ -68,7 +76,7 @@ class UploadCommand(Command):
     def run(self):
         try:
             self.status("Removing previous builds...")
-            rmtree(os.path.join(here, "dist"))
+            rmtree(os.path.join(current_dir, "dist"))
         except OSError:
             pass
 

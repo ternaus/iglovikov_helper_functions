@@ -5,30 +5,27 @@ import torch
 from catalyst.dl.core import Callback, RunnerState, CallbackOrder
 
 
-def calculate_confusion_matrix_from_arrays(prediction: np.array, ground_truth: np.array, num_classes: int) -> np.array:
+def calculate_confusion_matrix_from_arrays(ground_truth: np.array, prediction: np.array, num_classes: int) -> np.array:
     """Calculate confusion matrix for a given set of classes.
 
-    if GT value is outside of the [0, num_classes) it is excluded.
+        if GT value is outside of the [0, num_classes) it is excluded.
 
-    Args:
-        prediction:
-        ground_truth:
-        num_classes:
+        Args:
+            ground_truth:
+            prediction:
+            num_classes:
 
-    Returns:
+        Returns:
 
-    """
-    # a long 2xn array with each column being a pixel pair
-    replace_indices = np.vstack((ground_truth.flatten(), prediction.flatten()))
+        """
+    if not prediction.max() < num_classes:
+        raise ValueError(f"Max predicted class number must be equal {num_classes - 1}")
 
-    valid_index = replace_indices[0, :] < num_classes
-    replace_indices = replace_indices[:, valid_index].T
-
-    # add up confusion matrix
-    confusion_matrix, _ = np.histogramdd(
-        replace_indices, bins=(num_classes, num_classes), range=[(0, num_classes), (0, num_classes)]
-    )
-    return confusion_matrix.astype(np.uint64)
+    r = np.zeros(num_classes ** 2)
+    valid_idx = np.where(ground_truth < num_classes)[0]
+    idx, vals = np.unique(prediction[valid_idx] + ground_truth[valid_idx] * num_classes, return_counts=True)
+    r[idx] = vals
+    return r.reshape(num_classes, num_classes).astype(np.uint64)
 
 
 def get_confusion_matrix(y_pred_logits: torch.Tensor, y_true: torch.Tensor):

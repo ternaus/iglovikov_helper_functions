@@ -2,37 +2,38 @@ import io
 import os
 import sys
 from shutil import rmtree
-
+import re
 from setuptools import Command, find_packages, setup
 
 # Package meta-data.
-NAME = "iglovikov_helper_functions"
-DESCRIPTION = "Unstructured set of the helper functions."
-URL = "https://github.com/ternaus/iglovikov_helper_functions"
-EMAIL = "iglovikov@gmail.com"
-AUTHOR = "Vladimir Iglovikov"
-REQUIRES_PYTHON = ">=3.0.0"
-VERSION = "0.0.6"
+name = "iglovikov_helper_functions"
+description = "Unstructured set of the helper functions."
+url = "https://github.com/ternaus/iglovikov_helper_functions"
+email = "iglovikov@gmail.com"
+author = "Vladimir Iglovikov"
+requires_python = ">=3.0.0"
+current_dir = os.path.abspath(os.path.dirname(__file__))
 
-here = os.path.abspath(os.path.dirname(__file__))
+
+def get_version():
+    version_file = os.path.join(current_dir, name, "__init__.py")
+    with io.open(version_file, encoding="utf-8") as f:
+        return re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]', f.read(), re.M).group(1)
+
 
 # What packages are required for this module to be executed?
 try:
-    with open(os.path.join(here, "requirements.txt"), encoding="utf-8") as f:
-        REQUIRED = f.read().split("\n")
+    with open(os.path.join(current_dir, "requirements.txt"), encoding="utf-8") as f:
+        required = f.read().split("\n")
 except FileNotFoundError:
-    REQUIRED = []
+    required = []
 
 # What packages are optional?
-EXTRAS = {"test": ["pytest"]}
+extras = {"test": ["pytest"]}
 
-# Load the package's __version__.py module as a dictionary.
-about = {}
-if not VERSION:
-    with open(os.path.join(here, NAME, "__version__.py")) as f:
-        exec(f.read(), about)
-else:
-    about["__version__"] = VERSION
+version = get_version()
+
+about = {"__version__": version}
 
 
 def get_test_requirements():
@@ -68,7 +69,7 @@ class UploadCommand(Command):
     def run(self):
         try:
             self.status("Removing previous builds...")
-            rmtree(os.path.join(here, "dist"))
+            rmtree(os.path.join(current_dir, "dist"))
         except OSError:
             pass
 
@@ -86,17 +87,17 @@ class UploadCommand(Command):
 
 
 setup(
-    name=NAME,
-    version=VERSION,
-    description=DESCRIPTION,
+    name=name,
+    version=version,
+    description=description,
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     author="Vladimir Iglovikov",
     license="MIT",
-    url=URL,
+    url=url,
     packages=find_packages(exclude=["tests", "docs", "images"]),
-    install_requires=REQUIRED,
-    extras_require=EXTRAS,
+    install_requires=required,
+    extras_require=extras,
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",

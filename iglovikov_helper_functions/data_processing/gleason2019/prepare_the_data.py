@@ -117,10 +117,10 @@ def get_mapping() -> np.array:
 def merge_masks(file_path):
     mask_list = []
     file_path = Path(file_path)
-    final_mask_path = file_path.parents[1] / 'train' / 'masks' / (file_path.stem + '.png')
+    final_mask_path = file_path.parents[1] / "train" / "masks" / (file_path.stem + ".png")
     if not final_mask_path.exists():
         for num_expert in range(6):
-            mask_path = file_path.parents[1] / f"Maps{num_expert+1}_T" / (file_path.stem + '_classimg_nonconvex.png')
+            mask_path = file_path.parents[1] / f"Maps{num_expert+1}_T" / (file_path.stem + "_classimg_nonconvex.png")
             if mask_path.exists():
                 mask = cv2.imread(str(mask_path), 0)
                 mask_list += [mask]
@@ -134,7 +134,7 @@ def merge_masks(file_path):
 
             cv2.imwrite(str(final_mask_path), mask)
         else:
-            print('No masks for img: ', file_path)
+            print("No masks for img: ", file_path)
 
 
 def main():
@@ -156,7 +156,7 @@ def main():
         shutil.copy(str(old_file_name), str(new_file_name))
 
     with mp.Pool(args.n_jobs) as p:
-        file_list = glob.glob(str(old_train_image_folder / '*.jpg'))
+        file_list = glob.glob(str(old_train_image_folder / "*.jpg"))
         tqdm(p.imap(merge_masks, file_list), total=len(file_list))
 
 

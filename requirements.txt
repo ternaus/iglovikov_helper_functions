@@ -1,5 +1,6 @@
 addict
 black
+catalyst
 flake8
 isort
 joblib
@@ -8,4 +9,7 @@ pandas
 Pillow
 pytest
 scikit-image
+scikit-learn
+torch
+torchvision
 tqdm

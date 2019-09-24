@@ -69,7 +69,9 @@ If there is an image without mask or mask without image => removed.
 
 import argparse
 import shutil
+import glob
 from pathlib import Path
+import multiprocessing as mp
 
 import cv2
 import numpy as np
@@ -82,6 +84,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Map gleason data to standard format.")
 
     parser.add_argument("-d", "--data_path", type=Path, help="Path to folder with the data.", required=True)
+    parser.add_argument("-n", "--n_jobs", type=int, help="Number of jobs to run in parallel.", required=True)
     return parser.parse_args()
 
 
@@ -111,22 +114,38 @@ def get_mapping() -> np.array:
     return mapping
 
 
+def merge_masks(file_path):
+    mask_list = []
+    file_path = Path(file_path)
+    final_mask_path = file_path.parents[1] / 'train' / 'masks' / (file_path.stem + '.png')
+    if not final_mask_path.exists():
+        for num_expert in range(6):
+            mask_path = file_path.parents[1] / f"Maps{num_expert+1}_T" / (file_path.stem + '_classimg_nonconvex.png')
+            if mask_path.exists():
+                mask = cv2.imread(str(mask_path), 0)
+                mask_list += [mask]
+
+        if len(mask_list) > 0:
+            mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
+            mask = cv2.LUT(mask, get_mapping())
+
+            if not 0 <= mask.max() <= 3:
+                raise ValueError()
+
+            cv2.imwrite(str(final_mask_path), mask)
+        else:
+            print('No masks for img: ', file_path)
+
+
 def main():
     args = parse_args()
 
     train_image_path, train_mask_path, test_image_path = prepare_folders(args.data_path)
 
-    old_train_image_folder = args.data_path / "Train Imgs"
-    old_test_image_folder = args.data_path / "Test" / "Test_imgs"
-
-    train_image_ids = {x.stem for x in old_train_image_folder.glob("*.jpg")}
-    train_mask_ids = {x.stem.replace("_classimg_nonconvex", "") for x in (args.data_path / "Maps1_T").glob("*.png")}
-
-    mapping = get_mapping()
+    old_train_image_folder = args.data_path / "Train_imgs"
+    old_test_image_folder = args.data_path / "Test_imgs"
 
     for old_file_name in tqdm(sorted(old_train_image_folder.glob("*.jpg"))):
-        if old_file_name.stem not in train_mask_ids:
-            continue
         new_file_name = train_image_path / old_file_name.name
 
         shutil.copy(str(old_file_name), str(new_file_name))
@@ -136,24 +155,9 @@ def main():
 
         shutil.copy(str(old_file_name), str(new_file_name))
 
-    for file_name in tqdm(sorted((args.data_path / "Maps1_T").glob("*.png"))):
-        if file_name.stem.replace("_classimg_nonconvex", "") not in train_image_ids:
-            continue
-        mask_list = []
-        for num_expert in range(6):
-            mask_path = args.data_path / f"Maps{num_expert}_T" / file_name.name
-            if mask_path.exists():
-                mask = cv2.imread(str(mask_path), 0)
-                mask_list += [mask]
-
-        mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
-
-        mask = cv2.LUT(mask, mapping)
-
-        if not 0 <= mask.max() <= 3:
-            raise ValueError()
-
-        cv2.imwrite(str(train_mask_path / file_name.name.replace("_classimg_nonconvex", "")), mask)
+    with mp.Pool(args.n_jobs) as p:
+        file_list = glob.glob(str(old_train_image_folder / '*.jpg'))
+        tqdm(p.imap(merge_masks, file_list), total=len(file_list))
 
 
 if __name__ == "__main__":

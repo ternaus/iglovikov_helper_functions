@@ -5,10 +5,16 @@ import torch
 from catalyst.dl.core import Callback, RunnerState, CallbackOrder
 
 
-def calculate_confusion_matrix_from_arrays(ground_truth: np.array, prediction: np.array, num_classes: int) -> np.array:
+def calculate_confusion_matrix_from_arrays_fast(
+    ground_truth: np.array, prediction: np.array, num_classes: int
+) -> np.array:
     """Calculate confusion matrix for a given set of classes.
 
         if GT value is outside of the [0, num_classes) it is excluded.
+
+        10x faster than scikit learn implementation.
+
+        Implemented by Anton Nesterenko.
 
         Args:
             ground_truth:
@@ -34,7 +40,7 @@ def get_confusion_matrix(y_pred_logits: torch.Tensor, y_true: torch.Tensor):
     ground_truth = y_true.cpu().numpy()
     prediction = y_pred.cpu().numpy()
 
-    return calculate_confusion_matrix_from_arrays(ground_truth, prediction, num_classes)
+    return calculate_confusion_matrix_from_arrays_fast(ground_truth, prediction, num_classes)
 
 
 def calculate_tp_fp_fn(confusion_matrix):

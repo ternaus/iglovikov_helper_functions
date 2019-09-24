@@ -65,7 +65,8 @@ def calculate_dice(tp_fp_fn_dict):
 
         dice[i] = (2 * tp + epsilon) / (2 * tp + fp + fn + epsilon)
 
-        assert 0 <= dice[i] <= 1
+        if not 0 <= dice[i] <= 1:
+            raise ValueError()
 
     return dice
 
@@ -81,7 +82,8 @@ def calculate_jaccard(tp_fp_fn_dict):
 
         jaccard[i] = (tp + epsilon) / (tp + fp + fn + epsilon)
 
-        assert 0 <= jaccard[i] <= 1
+        if not 0 <= jaccard[i] <= 1:
+            raise ValueError()
 
     return jaccard
 

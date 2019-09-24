@@ -119,8 +119,8 @@ def merge_masks(file_path: str):
     file_path = Path(file_path)
     final_mask_path = file_path.parents[1] / "train" / "masks" / (file_path.stem + ".png")
     if not final_mask_path.exists():
-        for num_expert in range(6):
-            mask_path = file_path.parents[1] / f"Maps{num_expert+1}_T" / (file_path.stem + "_classimg_nonconvex.png")
+        for num_expert in range(1, 6 + 1):
+            mask_path = file_path.parents[1] / f"Maps{num_expert}_T" / (file_path.stem + "_classimg_nonconvex.png")
             if mask_path.exists():
                 mask = cv2.imread(str(mask_path), 0)
                 mask_list += [mask]

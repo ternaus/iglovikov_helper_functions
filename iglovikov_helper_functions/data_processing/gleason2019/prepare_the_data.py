@@ -30,7 +30,7 @@ Maps5_T
 Maps6_T
     slideN_core00M_classimg_nonconvex.png
 Test
-    Test imgs
+    Test_imgs
         slideM_coreN.jpg
 Train Imgs
     slideM_coreN.jpg
@@ -69,14 +69,13 @@ If there is an image without mask or mask without image => removed.
 
 import argparse
 import shutil
-import glob
 from pathlib import Path
-import multiprocessing as mp
 
 import cv2
 import numpy as np
 from scipy import stats
 from tqdm import tqdm
+from joblib import Parallel, delayed
 
 
 def parse_args():
@@ -114,51 +113,50 @@ def get_mapping() -> np.array:
     return mapping
 
 
-def merge_masks(file_path: str):
+def merge_masks(file_path: Path):
     mask_list = []
-    file_path = Path(file_path)
-    final_mask_path = file_path.parents[1] / "train" / "masks" / (file_path.stem + ".png")
-    if not final_mask_path.exists():
-        for num_expert in range(1, 6 + 1):
-            mask_path = file_path.parents[1] / f"Maps{num_expert}_T" / (file_path.stem + "_classimg_nonconvex.png")
-            if mask_path.exists():
-                mask = cv2.imread(str(mask_path), 0)
-                mask_list += [mask]
+    final_mask_path = file_path.parent.parent.parent / "train" / "masks" / (file_path.stem + ".png")
 
-        if mask_list:
-            mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
-            mask = cv2.LUT(mask, get_mapping())
+    for num_expert in range(1, 6 + 1):
+        mask_path = file_path.parents[2] / f"Maps{num_expert}_T" / (file_path.stem + "_classimg_nonconvex.png")
+        if mask_path.exists():
+            mask = cv2.imread(str(mask_path), 0)
+            mask_list += [mask]
 
-            if not 0 <= mask.max() <= 3:
-                raise ValueError()
+    if mask_list:
+        mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
+        mask = cv2.LUT(mask, get_mapping())
 
-            cv2.imwrite(str(final_mask_path), mask)
-        else:
-            print("No masks, removing img from train: ", file_path)
-            file_path.unlink()
+        if not 0 <= mask.max() <= 3:
+            raise ValueError()
+
+        cv2.imwrite(str(final_mask_path), mask)
+    else:
+        print("No masks, removing img from train: ", file_path)
+        file_path.unlink()
 
 
 def main():
     args = parse_args()
 
-    train_image_path, test_image_path = prepare_folders(args.data_path)
+    train_image_folder, test_image_folder = prepare_folders(args.data_path)
 
-    old_train_image_folder = args.data_path / "Train_imgs"
-    old_test_image_folder = args.data_path / "Test_imgs"
+    old_train_image_folder = args.data_path / "Train Imgs"
+    old_test_image_folder = args.data_path / "Test" / "Test_imgs"
 
     for old_file_name in tqdm(sorted(old_train_image_folder.glob("*.jpg"))):
-        new_file_name = train_image_path / old_file_name.name
+        new_file_name = train_image_folder / old_file_name.name
 
         shutil.copy(str(old_file_name), str(new_file_name))
 
     for old_file_name in tqdm(sorted(old_test_image_folder.glob("*.jpg"))):
-        new_file_name = test_image_path / old_file_name.name
+        new_file_name = test_image_folder / old_file_name.name
 
         shutil.copy(str(old_file_name), str(new_file_name))
 
-    with mp.Pool(args.n_jobs) as p:
-        file_list = glob.glob(str(old_train_image_folder / "*.jpg"))
-        tqdm(p.imap(merge_masks, file_list), total=len(file_list))
+    Parallel(n_jobs=args.n_jobs)(
+        delayed(merge_masks)(file_path) for file_path in tqdm(sorted(train_image_folder.glob("*.jpg")))
+    )
 
 
 if __name__ == "__main__":

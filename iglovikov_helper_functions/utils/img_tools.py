@@ -20,6 +20,8 @@ def load_rgb(image_path, lib="cv2") -> np.array:
             return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         elif lib == "jpeg4py":
             return jpeg4py.JPEG(image_path).decode()
+        else:
+            raise NotImplementedError("Only cv2 and jpeg4py are supported.")
 
     raise FileNotFoundError(f"File not found {image_path}")
 

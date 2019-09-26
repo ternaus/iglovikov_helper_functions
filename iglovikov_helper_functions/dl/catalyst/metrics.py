@@ -3,35 +3,12 @@ from typing import Dict
 import numpy as np
 import torch
 from catalyst.dl.core import Callback, RunnerState, CallbackOrder
-
-
-def calculate_confusion_matrix_from_arrays_fast(
-    ground_truth: np.array, prediction: np.array, num_classes: int
-) -> np.array:
-    """Calculate confusion matrix for a given set of classes.
-
-        if GT value is outside of the [0, num_classes) it is excluded.
-
-        10x faster than scikit learn implementation.
-
-        Implemented by Anton Nesterenko.
-
-        Args:
-            ground_truth:
-            prediction:
-            num_classes:
-
-        Returns:
-
-        """
-    if not prediction.max() < num_classes:
-        raise ValueError(f"Max predicted class number must be equal {num_classes - 1}")
-
-    r = np.zeros(num_classes ** 2)
-    valid_idx = np.where(ground_truth < num_classes)[0]
-    idx, vals = np.unique(prediction[valid_idx] + ground_truth[valid_idx] * num_classes, return_counts=True)
-    r[idx] = vals
-    return r.reshape(num_classes, num_classes).astype(np.uint64)
+from iglovikov_helper_functions.utils.metrics import (
+    calculate_confusion_matrix_from_arrays,
+    calculate_tp_fp_fn,
+    calculate_jaccard,
+    calculate_dice,
+)
 
 
 def get_confusion_matrix(y_pred_logits: torch.Tensor, y_true: torch.Tensor):
@@ -40,55 +17,7 @@ def get_confusion_matrix(y_pred_logits: torch.Tensor, y_true: torch.Tensor):
     ground_truth = y_true.cpu().numpy()
     prediction = y_pred.cpu().numpy()
 
-    return calculate_confusion_matrix_from_arrays_fast(ground_truth, prediction, num_classes)
-
-
-def calculate_tp_fp_fn(confusion_matrix):
-    true_positives = {}
-    false_positives = {}
-    false_negatives = {}
-
-    for index in range(confusion_matrix.shape[0]):
-        true_positives[index] = confusion_matrix[index, index]
-        false_positives[index] = confusion_matrix[:, index].sum() - true_positives[index]
-        false_negatives[index] = confusion_matrix[index, :].sum() - true_positives[index]
-
-    return {"true_positives": true_positives, "false_positives": false_positives, "false_negatives": false_negatives}
-
-
-def calculate_dice(tp_fp_fn_dict):
-    epsilon = 1e-7
-
-    dice = {}
-
-    for i in range(len(tp_fp_fn_dict["true_positives"])):
-        tp = tp_fp_fn_dict["true_positives"][i]
-        fp = tp_fp_fn_dict["false_positives"][i]
-        fn = tp_fp_fn_dict["true_positives"][i]
-
-        dice[i] = (2 * tp + epsilon) / (2 * tp + fp + fn + epsilon)
-
-        if not 0 <= dice[i] <= 1:
-            raise ValueError()
-
-    return dice
-
-
-def calculate_jaccard(tp_fp_fn_dict):
-    epsilon = 1e-7
-
-    jaccard = {}
-    for i in range(len(tp_fp_fn_dict["true_positives"])):
-        tp = tp_fp_fn_dict["true_positives"][i]
-        fp = tp_fp_fn_dict["false_positives"][i]
-        fn = tp_fp_fn_dict["true_positives"][i]
-
-        jaccard[i] = (tp + epsilon) / (tp + fp + fn + epsilon)
-
-        if not 0 <= jaccard[i] <= 1:
-            raise ValueError()
-
-    return jaccard
+    return calculate_confusion_matrix_from_arrays(ground_truth, prediction, num_classes)
 
 
 class MulticlassDiceMetricCallback(Callback):

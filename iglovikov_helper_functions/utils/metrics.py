@@ -28,20 +28,20 @@ def calculate_confusion_matrix_from_arrays_fast(
 ) -> np.array:
     """Calculate confusion matrix for a given set of classes.
 
-        if GT value is outside of the [0, num_classes) it is excluded.
+    if GT value is outside of the [0, num_classes) it is excluded.
 
-        10x faster than scikit learn implementation. But consumes a lot of memory.
+    10x faster than scikit learn implementation. But consumes a lot of memory.
 
-        Implemented by Anton Nesterenko.
+    Implemented by Anton Nesterenko.
 
 
 
-        Args:
-            ground_truth:
-            prediction:
-            num_classes:
+    Args:
+        ground_truth:
+        prediction:
+        num_classes:
 
-        Returns:
+    Returns:
 
         """
     if not prediction.max() < num_classes:

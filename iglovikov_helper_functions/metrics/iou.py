@@ -40,9 +40,7 @@ def calculate_ious_global(y_true_path: Path, y_pred_path: Path, num_classes: int
     confusion_matrix = np.dstack(matrices).sum(axis=2)
     tp_fp_fn_dict = calculate_tp_fp_fn(confusion_matrix)
 
-    ious = calculate_jaccard(tp_fp_fn_dict)
-
-    return ious
+    return calculate_jaccard(tp_fp_fn_dict)
 
 
 def get_args():

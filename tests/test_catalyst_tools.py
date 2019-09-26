@@ -15,7 +15,7 @@ def test_confusion_matrix():
     fast_cm = calculate_confusion_matrix_from_arrays_fast(y_true, y_pred, num_classes=num_classes)
     sklearn_cm = confusion_matrix(y_true, y_pred, labels=range(num_classes))
 
-    assert normal_cm.shape == sklearn_cm.shape == fast_cm.shape
-
+    assert normal_cm.shape == sklearn_cm.shape
+    assert fast_cm.shape == sklearn_cm.shape
     assert np.array_equal(normal_cm, sklearn_cm)
     assert np.array_equal(fast_cm, sklearn_cm)

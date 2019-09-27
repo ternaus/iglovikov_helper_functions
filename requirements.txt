@@ -2,6 +2,7 @@ addict
 black
 catalyst
 flake8
+hypothesis
 isort
 joblib
 numpy

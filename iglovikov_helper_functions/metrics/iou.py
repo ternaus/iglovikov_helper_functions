@@ -17,7 +17,12 @@ def confusion_matrix_from_files(y_true_path, y_pred_path, num_classes: int) -> n
     y_pred = load_grayscale(y_pred_path)
 
     if not y_true.shape == y_pred.shape:
-        raise ValueError("y_true and y_pred should have the same shape.")
+        raise ValueError(
+            f"y_true and y_pred should have the same shape. "
+            f"y_true shape = {y_true.shape} y_pred.shape = {y_pred.shape} "
+            f"y_pred_path = {y_pred_path} "
+            f"y_true_path = {y_true_path}"
+        )
 
     return calculate_confusion_matrix_from_arrays(y_true, y_pred, num_classes=num_classes)
 

@@ -1,4 +1,7 @@
 import numpy as np
+from hypothesis import given
+from hypothesis.extra.numpy import arrays as h_arrays
+from hypothesis.strategies import integers as h_int
 
 from iglovikov_helper_functions.utils.mask_tools import (
     binary_mask2coco,
@@ -26,17 +29,17 @@ def test_rle():
     assert rle == inversed_rle
 
 
-def test_kaggle_rle():
-    for _ in range(10):
-        h = np.random.randint(1, 1000)
-        w = np.random.randint(1, 1000)
-        mask = np.random.randint(0, 2, h * w).reshape(h, w)
+@given(
+    mask=h_arrays(dtype=np.uint8, shape=(np.random.randint(1, 1000), np.random.randint(1, 1000)), elements=h_int(0, 1))
+)
+def test_kaggle_rle(mask):
+    height, width = mask.shape
 
-        kaggle_rle = kaggle_rle_encode(mask)
-        coco_rle = coco_rle_encode(mask)
-        assert coco_rle == kaggle2coco(kaggle_rle, h, w)
-        assert np.all(mask == kaggle_rle_decode(kaggle_rle, h, w))
-        assert np.all(mask == coco_rle_decode(coco_rle, h, w))
+    kaggle_rle = kaggle_rle_encode(mask)
+    coco_rle = coco_rle_encode(mask)
+    assert coco_rle == kaggle2coco(kaggle_rle, height, width)
+    assert np.all(mask == kaggle_rle_decode(kaggle_rle, height, width))
+    assert np.all(mask == coco_rle_decode(coco_rle, height, width))
 
 
 def test_coco2binary_mask():

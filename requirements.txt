@@ -2,8 +2,10 @@ addict
 black
 catalyst
 flake8
+hypothesis
 isort
 joblib
+jpeg4py
 numpy
 pandas
 Pillow

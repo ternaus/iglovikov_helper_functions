@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import jpeg4py
 from pathlib import Path
+from PIL import Image
+from typing import Tuple
 
 
 def load_rgb(image_path: (Path, str), lib="cv2") -> np.array:
@@ -87,8 +89,21 @@ def unpad(image: np.array, pads: list) -> np.array:
     Returns: cropped image
 
     """
-
     x_min_pad, y_min_pad, x_max_pad, y_max_pad = pads
     height, width = image.shape[:2]
 
     return image[y_min_pad : height - y_max_pad, x_min_pad : width - x_max_pad]
+
+
+def get_size(file_path: (str, Path)) -> Tuple[int, int]:
+    """Gets size of the image in a lazy way.
+
+    Args:
+        file_path: Path to the target image.
+
+    Returns: (width, height)
+
+    """
+    image = Image.open(file_path)
+    width, height = image.size
+    return width, height

@@ -12,6 +12,8 @@ from iglovikov_helper_functions.utils.mask_tools import (
     kaggle_rle_encode,
     mask2rle,
     rle2mask,
+    one_hot,
+    reverse_one_hot,
 )
 
 
@@ -30,7 +32,37 @@ def test_rle():
 
 
 @given(
-    mask=h_arrays(dtype=np.uint8, shape=(np.random.randint(1, 1000), np.random.randint(1, 1000)), elements=h_int(0, 1))
+    mask=h_arrays(
+        dtype=np.uint8,
+        shape=(np.random.randint(1, 10), np.random.randint(1, 11)),
+        elements=h_int(min_value=0, max_value=255),
+    )
+)
+def test_mask2one_hot(mask):
+    num_classes = mask.max() + 1
+
+    one_hot_mask = one_hot(mask, num_classes)
+
+    assert np.all(mask == reverse_one_hot(one_hot_mask))
+
+
+@given(
+    mask=h_arrays(
+        dtype=np.uint8,
+        shape=(np.random.randint(1, 11), np.random.randint(1, 10)),
+        elements=h_int(min_value=0, max_value=255),
+    )
+)
+def test_mask2one_hot_with_limit(mask):
+    num_classes = int(mask.max() / 2)
+
+    one_hot_mask = one_hot(mask, num_classes)
+
+    assert one_hot_mask.shape[-1] == num_classes
+
+
+@given(
+    mask=h_arrays(dtype=np.uint8, shape=(np.random.randint(1, 300), np.random.randint(1, 300)), elements=h_int(0, 1))
 )
 def test_kaggle_rle(mask):
     height, width = mask.shape

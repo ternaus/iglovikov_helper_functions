@@ -164,3 +164,33 @@ def kaggle2coco(kaggle_rle, height, width):
     coco_rle[: len(coco_rle) - shift] = kaggle_rle.copy()
     coco_rle[: len(coco_rle) - shift : 2] = (kaggle_rle - roll1 - roll2)[::2].copy()
     return {"counts": coco_rle.tolist(), "size": [height, width]}
+
+
+def one_hot(mask: np.array, num_classes: int) -> np.array:
+    """Converts mask of the shape (N, K) to the one hot representation.
+
+    Args:
+        mask:
+        num_classes: we do not consider values that are >= num_classes
+
+    Returns: one hot representation of the shape (N, K, num_classes)
+
+    (Implementation by Artem Sobolev)
+
+    """
+    return (mask[:, :, None] == np.arange(num_classes)[None, None, :]).astype(int)
+
+
+def reverse_one_hot(one_hot_mask: np.array) -> np.array:
+    """Reverse of the one hot encoding.
+
+    Args:
+        one_hot_mask:
+
+    (Implementation by Artem Sobolev)
+
+    Returns:
+
+    """
+    num_classes = one_hot_mask.shape[-1]
+    return np.sum(one_hot_mask * np.arange(num_classes)[None, None, :], axis=2)

@@ -4,6 +4,7 @@ from itertools import groupby
 import numpy as np
 from pycocotools import mask as mutils
 from skimage import measure
+import cv2
 
 
 def coco_seg2bbox(polygons, image_height: int, image_width: int) -> list:
@@ -194,3 +195,31 @@ def reverse_one_hot(one_hot_mask: np.array) -> np.array:
     """
     num_classes = one_hot_mask.shape[-1]
     return np.sum(one_hot_mask * np.arange(num_classes)[None, None, :], axis=2)
+
+
+def remove_small_connected_binary(mask: np.array, min_area: int) -> np.array:
+    """Remove connected components from a binary mask that are smaller than threshold.
+
+    Args:
+        mask:
+        min_area:
+
+
+    Returns: Filtered mask.
+
+    """
+    if min_area == 0:
+        return mask
+
+    connectivity = 8
+    # Perform the operation
+    output = cv2.connectedComponentsWithStats(mask.astype(np.uint8), connectivity, cv2.CV_32S)
+
+    labels = output[1]
+
+    areas = output[2][1:, 4]
+    valid_areas_index = np.where(areas >= min_area)[0] + 1
+
+    valid_index = np.isin(labels, valid_areas_index)
+
+    return mask * valid_index

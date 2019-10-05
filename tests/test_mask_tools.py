@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from hypothesis import given
 from hypothesis.extra.numpy import arrays as h_arrays
@@ -14,6 +15,7 @@ from iglovikov_helper_functions.utils.mask_tools import (
     rle2mask,
     one_hot,
     reverse_one_hot,
+    remove_small_connected_binary,
 )
 
 
@@ -72,6 +74,31 @@ def test_kaggle_rle(mask):
     assert coco_rle == kaggle2coco(kaggle_rle, height, width)
     assert np.all(mask == kaggle_rle_decode(kaggle_rle, height, width))
     assert np.all(mask == coco_rle_decode(coco_rle, height, width))
+
+
+@given(
+    mask=h_arrays(dtype=np.uint8, shape=(np.random.randint(1, 300), np.random.randint(1, 300)), elements=h_int(0, 1)),
+    min_area=h_int(0, 100),
+)
+def test_remove_small_connected(mask, min_area):
+
+    filtered_mask = remove_small_connected_binary(mask, min_area)
+
+    assert filtered_mask.shape == mask.shape
+    assert filtered_mask.dtype == mask.dtype
+    assert set(np.unique(filtered_mask)) - {0, 1} == set()
+
+    connectivity = 8
+    # Perform the operation
+    output = cv2.connectedComponentsWithStats(mask.astype(np.uint8), connectivity, cv2.CV_32S)
+
+    areas = output[2][1:, 4]
+
+    assert (mask - filtered_mask).sum() == areas[areas < min_area].sum()
+
+    filtered_mask_2 = remove_small_connected_binary(filtered_mask, min_area)
+
+    assert np.array_equal(filtered_mask, filtered_mask_2)
 
 
 def test_coco2binary_mask():

@@ -147,7 +147,7 @@ def coco_rle_decode(rle, h, w):
 
 
 def kaggle2coco(kaggle_rle, height, width):
-    if not len(kaggle_rle):
+    if not kaggle_rle:
         return {"counts": [height * width], "size": [height, width]}
     roll2 = np.roll(kaggle_rle, 2)
     roll2[:2] = 1

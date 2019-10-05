@@ -7,6 +7,7 @@ isort
 joblib
 jpeg4py
 numpy
+opencv-python
 pandas
 Pillow
 pytest

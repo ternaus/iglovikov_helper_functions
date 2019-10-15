@@ -121,11 +121,11 @@ def merge_masks(file_path: Path):
         mask_path = file_path.parents[2] / f"Maps{num_expert}_T" / (file_path.stem + "_classimg_nonconvex.png")
         if mask_path.exists():
             mask = cv2.imread(str(mask_path), 0)
+            mask = cv2.LUT(mask, get_mapping())
             mask_list += [mask]
 
     if mask_list:
         mask = stats.mode(np.dstack(mask_list), axis=2).mode[:, :, 0]
-        mask = cv2.LUT(mask, get_mapping())
 
         if not 0 <= mask.max() <= 3:
             raise ValueError()

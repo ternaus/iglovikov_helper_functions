@@ -15,8 +15,7 @@ def get_mapping_dict():
     labels_df = pd.DataFrame(labels)
     labels_df = labels_df[~labels_df["ignoreInEval"]]
     result = dict(zip(labels_df["trainId"].values, labels_df["name"]))
-    result["0"] = "unlabeled"
-    return mapping_dict
+    return result
 
 
 def get_args():

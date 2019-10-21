@@ -49,7 +49,7 @@ def calculate_ious_global(y_true_path: Path, y_pred_path: Path, num_classes: int
 
 
 def get_args():
-    parser = argparse.ArgumentParser("Calcualte IOU for segmentation masks")
+    parser = argparse.ArgumentParser("Calculate IOU for segmentation masks.")
     arg = parser.add_argument
     arg("-p", "--predictions_path", type=Path, help="Json with predictions.", required=True)
     arg("-g", "--ground_truth_path", type=Path, help="Json with ground truth.", required=True)

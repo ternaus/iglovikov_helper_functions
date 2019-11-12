@@ -31,36 +31,53 @@ from PIL import Image
 from tqdm import tqdm
 
 from iglovikov_helper_functions.utils.mask_tools import binary_mask2coco, coco_seg2bbox
+from iglovikov_helper_functions.utils.img_tools import load_grayscale
 
 
-def get_annotation_info(image_id: str, dft: pd.DataFrame, hash2id: dict, image_sizes: dict, mask_path: Path) -> list:
+def get_annotation_info(annotation: pd.DataFrame, i: int, hash2id: dict, image_sizes: dict, mask_path: Path) -> dict:
+    """
+
+    Args:
+        annotation
+        i
+        hash2id:
+        image_sizes:
+        mask_path:
+
+    Returns:
+
+    """
+    image_id = annotation.loc[i, "ImageID"]
+
     image_width, image_height = image_sizes[image_id]
 
-    for i in dft.index:
-        mask_file_name = dft.loc[i, "MaskPath"]
+    mask_file_name = annotation.loc[i, "MaskPath"]
 
-        png = (cv2.imread(str(mask_path / mask_file_name), 0) > 0).astype(np.uint8)
-        png = cv2.resize(png, (image_width, image_height), cv2.INTER_NEAREST)
+    png = (load_grayscale(mask_path / mask_file_name) > 0).astype(np.uint8)
+    png = cv2.resize(png, (image_width, image_height), cv2.INTER_NEAREST)
 
-        segmentation = binary_mask2coco(png)
-        bbox = coco_seg2bbox(segmentation, image_height, image_width)
-        annotation_id = str(hash(image_id + "_{}".format(i)))
+    segmentation = binary_mask2coco(png)
 
-        class_name = dft.loc[i, "LabelName"]
+    if not segmentation:
+        return {}
 
-        area = bbox[2] * bbox[3]  # bbox_width * bbox_height
+    class_name = annotation.loc[i, "LabelName"]
 
-        annotation_info = {
-            "id": annotation_id,
-            "image_id": image_id,
-            "category_id": hash2id[class_name],
-            "iscrowd": 0,
-            "area": area,
-            "bbox": bbox,
-            "segmentation": segmentation,
-        }
+    bbox = coco_seg2bbox(segmentation, image_height, image_width)
 
-    return annotation_info
+    annotation_id = str(hash(f"{image_id}_{i}"))
+
+    area = bbox[2] * bbox[3]  # bbox_width * bbox_height
+
+    return {
+        "id": annotation_id,
+        "image_id": image_id,
+        "category_id": hash2id[class_name],
+        "iscrowd": 0,
+        "area": area,
+        "bbox": bbox,
+        "segmentation": segmentation,
+    }
 
 
 def get_coco_images(annotations, image_sizes):
@@ -101,7 +118,7 @@ def get_name2size(image_path: Path, num_jobs: int, extenstion: str = "jpg", id_t
             raise NotImplementedError("only name and stem are supported")
 
     sizes = Parallel(n_jobs=num_jobs, prefer="threads")(
-        delayed(helper)(file_name) for file_name in tqdm(sorted(image_path.glob("*.{}".format(extenstion))))
+        delayed(helper)(file_name) for file_name in tqdm(sorted(image_path.glob(f"*.{extenstion}")))
     )
 
     return dict(sizes)
@@ -122,7 +139,7 @@ def get_classhash2id(categories_path: Path) -> dict:
 
 
 def get_coco_categories(categories_path: Path) -> list:
-    """Create coco categories dice
+    """Create coco categories.
 
     Args:
         categories_path: Path to the file challenge-2019-classes-description-segmentable.csv
@@ -144,7 +161,7 @@ def get_coco_categories(categories_path: Path) -> list:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("Converting open images to COCO format.")
     parser.add_argument("-a", "--annotation", type=str, help="Path to the annotation file.")
     parser.add_argument("-i", "--image_path", type=Path, help="Path to images.")
     parser.add_argument("-m", "--mask_path", type=Path, help="Path to masks.")
@@ -159,7 +176,10 @@ def main():
     args = parse_args()
     annotation = pd.read_csv(args.annotation)
 
+    print("Generating image size mapping")
     image_sizes = get_name2size(args.image_path, args.num_jobs, "jpg", id_type="stem")
+
+    print("Generating mask size mapping")
     mask_sizes = get_name2size(args.mask_path, args.num_jobs, "png", id_type="name")
 
     hash2id = get_classhash2id(args.classes)
@@ -173,16 +193,18 @@ def main():
 
     valid_index = annotation["size"].notnull() & annotation["mask_sizes"].notnull()
 
-    annotation = annotation[valid_index]
+    annotation = annotation[valid_index].reset_index(drop=True)
 
     print(f"Masks after purge = {annotation.shape[0]}")
 
-    grouped_annotations = annotation.groupby("ImageID")
-
     coco_annotations = Parallel(n_jobs=args.num_jobs, prefer="threads")(
-        delayed(get_annotation_info)(image_id, group, hash2id, image_sizes, args.mask_path)
-        for image_id, group in tqdm(grouped_annotations)
+        delayed(get_annotation_info)(annotation, i, hash2id, image_sizes, args.mask_path)
+        for i in tqdm(annotation.index)
     )
+    print(len(coco_annotations))
+
+    coco_annotations = [x for x in coco_annotations if x]
+    print(len(coco_annotations))
 
     samples = {
         "categories": get_coco_categories(args.classes),
@@ -190,7 +212,7 @@ def main():
         "annotations": coco_annotations,
     }
 
-    with open(args.output, "wb") as f:
+    with open(args.output, "w") as f:
         json.dump(samples, f)
 
 

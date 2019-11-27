@@ -3,6 +3,7 @@ black
 catalyst
 flake8
 hypothesis
+imagecorruptions
 isort
 joblib
 jpeg4py

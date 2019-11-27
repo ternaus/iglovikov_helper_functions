@@ -26,3 +26,7 @@ python -m iglovikov_helper_functions.src.data_processing.open_images.instance2co
 ## Cityscapes
 
 To map the data to the standard format follow [How to map Cityscapes](data_processing/cityscapes/README.md)
+
+## To create corrupted dataset following [Benchmarking Robustness in Object Detection: Autonomous Driving when Winter is Coming](https://arxiv.org/abs/1907.07484)
+
+[Readme](iglovikov_helper_functions/data_parsing/corrupt_dataset/README.md)

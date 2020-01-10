@@ -107,3 +107,15 @@ def get_size(file_path: (str, Path)) -> Tuple[int, int]:
     image = Image.open(file_path)
     width, height = image.size
     return width, height
+
+
+def bgr2rgb(image):
+    """Convert image from bgr to rgb format
+
+    Args:
+        image:
+
+    Returns:
+
+    """
+    return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)

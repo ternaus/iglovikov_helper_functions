@@ -16,8 +16,6 @@ from iglovikov_helper_functions.utils.mask_tools import (
     one_hot,
     reverse_one_hot,
     remove_small_connected_binary,
-    create_wsline_mask,
-    create_wsline_mask1,
 )
 
 

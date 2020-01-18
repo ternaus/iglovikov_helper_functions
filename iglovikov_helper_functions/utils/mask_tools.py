@@ -5,6 +5,8 @@ import numpy as np
 from pycocotools import mask as mutils
 from skimage import measure
 import cv2
+from scipy.ndimage import binary_dilation
+from skimage.morphology import watershed
 
 
 def coco_seg2bbox(polygons, image_height: int, image_width: int) -> list:
@@ -223,3 +225,24 @@ def remove_small_connected_binary(mask: np.array, min_area: int) -> np.array:
     valid_index = np.isin(labels, valid_areas_index)
 
     return mask * valid_index
+
+
+def create_wsline_mask(labels: np.array, mask_dilution=4, contour_dilution=3) -> np.array:
+    """Return parts of the mask where different instances are touching or close to each other.
+
+    Args:
+        labels: array with instances. 0 - background. 1+ - instance ids
+        mask_dilution:
+        contour_dilution:
+
+    Returns:
+
+    """
+    mask = labels.copy()
+    mask[mask > 0] = 1
+    dilated = binary_dilation(mask, iterations=mask_dilution)
+    mask_wl = watershed(dilated, labels, mask=dilated, watershed_line=True)
+    mask_wl[mask_wl > 0] = 1
+    contours = dilated - mask_wl
+
+    return binary_dilation(contours, iterations=contour_dilution)

@@ -14,6 +14,7 @@ Pillow
 pytest
 scikit-image
 scikit-learn
+scipy
 torch
 torchvision
 tqdm

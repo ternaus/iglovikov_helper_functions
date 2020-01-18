@@ -1,7 +1,7 @@
-from torch.optim.lr_scheduler import _LRScheduler
+import torch
 
 
-class PolylLR(_LRScheduler):
+def poly_lr_scheduler(optimizer, gamma: float = 0.9, max_epoch: int = 100):
     """Set the learning rate of each parameter group to the initial lr polynomially decayed with the power of
     gamma on every epoch.
 
@@ -9,13 +9,6 @@ class PolylLR(_LRScheduler):
         optimizer (Optimizer): Wrapped optimizer.
         gamma (float): Decay learning rate.
         max_epoch (int): Index of the maximum epoch.
-        last_epoch (int): The index of last epoch.
     """
 
-    def __init__(self, optimizer, gamma, max_epoch, last_epoch=-1):
-        self.gamma = gamma
-        self.max_epoch = max_epoch
-        super(PolylLR, self).__init__(optimizer, last_epoch)
-
-    def get_lr(self):
-        return [base_lr * (1 - self.last_epoch / self.max_epoch) ** self.gamma for base_lr in self.base_lrs]
+    return torch.optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: (1 - (epoch / max_epoch) ** gamma))

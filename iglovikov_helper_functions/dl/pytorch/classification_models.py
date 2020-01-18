@@ -1,5 +1,6 @@
 import pretrainedmodels
 from torch import nn
+import torch
 
 
 def get_model(model_name: str, num_classes=1000, pretrained: bool = False):
@@ -25,24 +26,36 @@ def get_model(model_name: str, num_classes=1000, pretrained: bool = False):
         dim_feats = model.last_linear.in_features
         model.last_linear = nn.Linear(dim_feats, num_classes, bias=True)
 
-    if model_name == "resnet50":
+    if hasattr(model, "avgpool"):
         model.avgpool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
-    elif model_name in ["se_resnext50_32x4d", "se_resnext101_32x4d"]:
+    elif hasattr(model, "avg_pool"):
         model.avg_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
     else:
-        raise NotImplementedError(f"Average pool for is not added to {model_name}")
+        raise NotImplementedError(f"No avgpool or avg_pool layer in the model {model_name}")
 
     return Net(model)
 
 
 class Net(nn.Module):
-    def __init__(self, model):
+    def __init__(self, model, model_name):
         super(Net, self).__init__()
-        self.l1 = nn.Sequential(*list(model.children())[:-1]).to("cuda:0")
-        self.last = list(model.children())[-1]
+
+        use_cuda = torch.cuda.is_available()
+        device = torch.device("cuda:0" if use_cuda else "cpu")
+        self.features = nn.Sequential(*list(model.children())[:-1]).to(device)
+        self.last_linear = list(model.children())[-1]
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        self.relu = nn.ReLU(inplace=True)
+        self.model_name = model_name
 
     def forward(self, x):
-        x = self.l1(x)
+        x = self.features(x)
+
+        if "densenet" in self.model_name:
+            x = self.relu(x)
+            x = self.pool(x)
+
         x = x.view(x.size()[0], -1)
-        x = self.last(x)
+
+        x = self.last_linear(x)
         return x

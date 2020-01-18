@@ -1,6 +1,9 @@
 import pretrainedmodels
 from torch import nn
+<<<<<<< HEAD
 import torch
+=======
+>>>>>>> 05e3a651264fcdb4ac88af9db5cbb752aa557a84
 
 
 def get_model(model_name: str, num_classes=1000, pretrained: bool = False):
@@ -26,17 +29,27 @@ def get_model(model_name: str, num_classes=1000, pretrained: bool = False):
         dim_feats = model.last_linear.in_features
         model.last_linear = nn.Linear(dim_feats, num_classes, bias=True)
 
+<<<<<<< HEAD
     if hasattr(model, "avgpool"):
         model.avgpool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
     elif hasattr(model, "avg_pool"):
         model.avg_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
     else:
         raise NotImplementedError(f"No avgpool or avg_pool layer in the model {model_name}")
+=======
+    if model_name == "resnet50":
+        model.avgpool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
+    elif model_name in ["se_resnext50_32x4d", "se_resnext101_32x4d"]:
+        model.avg_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
+    else:
+        raise NotImplementedError(f"Average pool for is not added to {model_name}")
+>>>>>>> 05e3a651264fcdb4ac88af9db5cbb752aa557a84
 
-    return Net(model, model_name)
+    return Net(model)
 
 
 class Net(nn.Module):
+<<<<<<< HEAD
     def __init__(self, model, model_name):
         super(Net, self).__init__()
 
@@ -58,4 +71,15 @@ class Net(nn.Module):
         x = x.view(x.size()[0], -1)
 
         x = self.last_linear(x)
+=======
+    def __init__(self, model):
+        super(Net, self).__init__()
+        self.l1 = nn.Sequential(*list(model.children())[:-1]).to("cuda:0")
+        self.last = list(model.children())[-1]
+
+    def forward(self, x):
+        x = self.l1(x)
+        x = x.view(x.size()[0], -1)
+        x = self.last(x)
+>>>>>>> 05e3a651264fcdb4ac88af9db5cbb752aa557a84
         return x

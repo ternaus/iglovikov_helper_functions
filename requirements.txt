@@ -7,6 +7,7 @@ imagecorruptions
 isort
 joblib
 jpeg4py
+mmcv
 numpy
 opencv-python
 pandas

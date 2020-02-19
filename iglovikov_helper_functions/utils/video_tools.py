@@ -24,7 +24,7 @@ def load_frame(video_path: (Path, str), frame_id: int = -1, rgb: bool = True) ->
     num_frames = len(video)
 
     if frame_id < 0:
-        frame_id = random.randint(num_frames)
+        frame_id = random.randint(0, num_frames - 1)
 
     frame = video.get_frame(frame_id)
 

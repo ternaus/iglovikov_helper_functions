@@ -6,18 +6,12 @@ Expects input data in the COCO format.
 Based on https://github.com/ucbdrive/bdd-data/blob/master/bdd_data/evaluate.py
 """
 import argparse
-from collections import defaultdict
 
 import numpy as np
 from collections import OrderedDict
 import json
 
-
-def group_by_key(detections, key):
-    groups = defaultdict(list)
-    for detection in detections:
-        groups[detection[key]].append(detection)
-    return groups
+from iglovikov_helper_functions.utils.general_utils import group_by_key
 
 
 def get_envelope(precisions: np.array) -> np.array:

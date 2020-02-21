@@ -6,7 +6,6 @@ Expects input data in the COCO format.
 Based on https://github.com/ucbdrive/bdd-data/blob/master/bdd_data/evaluate.py
 """
 import argparse
-from collections import defaultdict
 
 import numpy as np
 from collections import OrderedDict

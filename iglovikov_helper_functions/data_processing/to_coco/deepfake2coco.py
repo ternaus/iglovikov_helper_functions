@@ -29,6 +29,9 @@ from tqdm import tqdm
 
 from iglovikov_helper_functions.utils.general_utils import group_by_key
 
+from iglovikov_helper_functions.utils.img_tools import get_size
+from joblib import Parallel, delayed
+
 
 def fill_empty(df: pd.DataFrame) -> pd.DataFrame:
     """Fill the gaps in the 'original' column with values from 'index'
@@ -54,6 +57,8 @@ def parse_args():
     parser.add_argument(
         "-o", "--output_path", type=Path, help="Path to the json file that maps real to fake images.", required=True
     )
+
+    parser.add_argument("-j", "--num_threads", type=int, help="The number of CPU threads", default=12)
     return parser.parse_args()
 
 
@@ -65,7 +70,10 @@ def main():
 
     image_file_names = [str(x) for x in sorted(args.image_path.rglob("*.jpg"))]
 
-    image_df = pd.DataFrame({"image_file_path": image_file_names})
+
+    image_shape = Parallel(n_jobs=args.num_threads, prefer="threads")(delayed(get_size)(x) for x in tqdm(image_file_names))
+
+    image_df = pd.DataFrame({"image_file_path": image_file_names, "size": image_shape})
 
     image_df["video_id"] = image_df["image_file_path"].str.extract(r"([a-z]+)_\d+\.jpg")
     image_df["frame_id"] = image_df["image_file_path"].str.extract(r"[a-z]+_(\d+)\.jpg").astype(int)
@@ -95,12 +103,19 @@ def main():
 
         for i in df.index:
             frame_id = df.loc[i, "frame_id"]
+            image_width, image_height = df.loc[i, "size"]
 
             image_id = f"{video_id}_{frame_id}"
 
             image_file_path = Path(df.loc[i, "image_file_path"])
 
-            image_info = {"id": image_id, "file_name": str(image_file_path.parent.name + "/" + image_file_path.name)}
+
+            image_info = {
+                "id": image_id,
+                "file_name": str(image_file_path.parent.name + "/" + image_file_path.name),
+                "width": image_width,
+                "height": image_height,
+            }
 
             for b, bbox in enumerate(grouped_label[frame_id]):
                 x_min, y_min, x_max, y_max = bbox["bbox"]
@@ -116,6 +131,8 @@ def main():
                 annotation_id = str(hash(f"{video_id}_{frame_id}_{b}"))
 
                 annotation_info = {
+
+                    "segmentation": [],
                     "id": annotation_id,
                     "image_id": image_id,
                     "category_id": 1,  # We have only one category, faces
@@ -128,7 +145,7 @@ def main():
 
             coco_images += [image_info]
 
-    coco_categories = {"id": 1, "name": "face"}
+    coco_categories = [{"id": 1, "name": "face"}]
 
     output_coco_annotations = {
         "categories": coco_categories,

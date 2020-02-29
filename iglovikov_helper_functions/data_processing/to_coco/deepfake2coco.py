@@ -48,25 +48,27 @@ def parse_args():
 
     parser.add_argument("-i", "--image_path", type=Path, help="Path to the jpg image files.", required=True)
     parser.add_argument("-l", "--label_path", type=Path, help="Path to the json label files.", required=True)
-    parser.add_argument("-m", "--label_mapper", type=Path, help="Path to the csv file that maps real to fake images.",
-                        required=True)
-    parser.add_argument("-o", "--output_path", type=Path, help="Path to the json file that maps real to fake images.",
-                        required=True)
+    parser.add_argument(
+        "-m", "--label_mapper", type=Path, help="Path to the csv file that maps real to fake images.", required=True
+    )
+    parser.add_argument(
+        "-o", "--output_path", type=Path, help="Path to the json file that maps real to fake images.", required=True
+    )
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
 
-    if not args.label_mapper.suffix == '.csv':
+    if not args.label_mapper.suffix == ".csv":
         raise ValueError(f"Label mapper should be csv file, but we got {args.label_mapper}.")
 
     image_file_names = [str(x) for x in sorted(args.image_path.rglob("*.jpg"))]
 
-    image_df = pd.DataFrame({'image_file_path': image_file_names})
+    image_df = pd.DataFrame({"image_file_path": image_file_names})
 
-    image_df['video_id'] = image_df['image_file_path'].str.extract(r'([a-z]+)_\d+\.jpg')
-    image_df['frame_id'] = image_df['image_file_path'].str.extract(r'[a-z]+_(\d+)\.jpg').astype(int)
+    image_df["video_id"] = image_df["image_file_path"].str.extract(r"([a-z]+)_\d+\.jpg")
+    image_df["frame_id"] = image_df["image_file_path"].str.extract(r"[a-z]+_(\d+)\.jpg").astype(int)
 
     id2label = {x.stem.replace("_faces", ""): x for x in args.label_path.rglob("*.json")}
 
@@ -74,7 +76,7 @@ def main():
 
     label_mapping = fill_empty(label_mapping)
 
-    index2original = dict(zip(label_mapping['index'].values, label_mapping['original'].values))
+    index2original = dict(zip(label_mapping["index"].values, label_mapping["original"].values))
 
     g = image_df.groupby("video_id")
 
@@ -92,13 +94,13 @@ def main():
         grouped_label = group_by_key(label["bboxes"], "frame_id")
 
         for i in df.index:
-            frame_id = df.loc[i, 'frame_id']
+            frame_id = df.loc[i, "frame_id"]
 
             image_id = f"{video_id}_{frame_id}"
 
-            image_file_path = Path(df.loc[i, 'image_file_path'])
+            image_file_path = Path(df.loc[i, "image_file_path"])
 
-            image_info = {"id": image_id, "file_name": str(image_file_path.parent.name + '/' + image_file_path.name)}
+            image_info = {"id": image_id, "file_name": str(image_file_path.parent.name + "/" + image_file_path.name)}
 
             for b, bbox in enumerate(grouped_label[frame_id]):
                 x_min, y_min, x_max, y_max = bbox["bbox"]
@@ -142,5 +144,5 @@ def main():
         json.dump(output_coco_annotations, f, sort_keys=True, indent=2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

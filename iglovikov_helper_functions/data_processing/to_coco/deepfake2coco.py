@@ -28,6 +28,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from iglovikov_helper_functions.utils.general_utils import group_by_key
+
 from iglovikov_helper_functions.utils.img_tools import get_size
 from joblib import Parallel, delayed
 
@@ -56,6 +57,7 @@ def parse_args():
     parser.add_argument(
         "-o", "--output_path", type=Path, help="Path to the json file that maps real to fake images.", required=True
     )
+
     parser.add_argument("-j", "--num_threads", type=int, help="The number of CPU threads", default=12)
     return parser.parse_args()
 
@@ -68,7 +70,8 @@ def main():
 
     image_file_names = [str(x) for x in sorted(args.image_path.rglob("*.jpg"))]
 
-    image_shape = Parallel(n_jobs=12, prefer="threads")(delayed(get_size)(x) for x in tqdm(image_file_names))
+
+    image_shape = Parallel(n_jobs=args.num_threads, prefer="threads")(delayed(get_size)(x) for x in tqdm(image_file_names))
 
     image_df = pd.DataFrame({"image_file_path": image_file_names, "size": image_shape})
 
@@ -106,6 +109,7 @@ def main():
 
             image_file_path = Path(df.loc[i, "image_file_path"])
 
+
             image_info = {
                 "id": image_id,
                 "file_name": str(image_file_path.parent.name + "/" + image_file_path.name),
@@ -127,6 +131,7 @@ def main():
                 annotation_id = str(hash(f"{video_id}_{frame_id}_{b}"))
 
                 annotation_info = {
+
                     "segmentation": [],
                     "id": annotation_id,
                     "image_id": image_id,

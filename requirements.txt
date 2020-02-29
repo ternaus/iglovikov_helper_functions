@@ -1,5 +1,5 @@
 addict
-black
+black=19.10b0
 catalyst
 flake8
 hypothesis

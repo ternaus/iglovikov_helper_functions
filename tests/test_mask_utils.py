@@ -4,7 +4,7 @@ from hypothesis import given
 from hypothesis.extra.numpy import arrays as h_arrays
 from hypothesis.strategies import integers as h_int
 
-from iglovikov_helper_functions.utils.mask_tools import (
+from iglovikov_helper_functions.utils.mask_utils import (
     binary_mask2coco,
     coco_rle_decode,
     coco_rle_encode,

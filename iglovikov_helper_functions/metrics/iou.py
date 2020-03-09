@@ -1,18 +1,20 @@
 """Script to calculate global IOU for segmentation tasks."""
+import argparse
 from pathlib import Path
-from joblib import Parallel, delayed
+
 import numpy as np
-from iglovikov_helper_functions.utils.img_tools import load_grayscale
+from joblib import Parallel, delayed
+from tqdm import tqdm
+
+from iglovikov_helper_functions.utils.image_utils import load_grayscale
 from iglovikov_helper_functions.utils.metrics import (
     calculate_confusion_matrix_from_arrays,
     calculate_jaccard,
     calculate_tp_fp_fn,
 )
-from tqdm import tqdm
-import argparse
 
 
-def confusion_matrix_from_files(y_true_path, y_pred_path, num_classes: int) -> np.array:
+def confusion_matrix_from_files(y_true_path: Path, y_pred_path: Path, num_classes: int) -> np.array:
     y_true = load_grayscale(y_true_path)
     y_pred = load_grayscale(y_pred_path)
 
@@ -28,7 +30,6 @@ def confusion_matrix_from_files(y_true_path, y_pred_path, num_classes: int) -> n
 
 
 def calculate_ious_global(y_true_path: Path, y_pred_path: Path, num_classes: int, num_workers: int = 1) -> np.array:
-
     y_true_files = sorted(y_true_path.glob("*.png"))
     y_pred_files = sorted(y_pred_path.glob("*.png"))
 

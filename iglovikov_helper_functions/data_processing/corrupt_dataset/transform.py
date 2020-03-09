@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from iglovikov_helper_functions.utils.img_tools import load_rgb, bgr2rgb
+from iglovikov_helper_functions.utils.image_utils import load_rgb, bgr2rgb
 import cv2
 from imagecorruptions import corrupt, get_corruption_names
 from tqdm import tqdm
@@ -18,7 +18,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def process_image(file_path: (str, Path), max_severity: int, output_dir: Path) -> None:
+def process_image(file_path: Path, max_severity: int, output_dir: Path) -> None:
     image = load_rgb(file_path)
     for corruption in get_corruption_names():
         for severity in range(max_severity):

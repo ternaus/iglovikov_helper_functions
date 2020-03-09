@@ -5,7 +5,6 @@ import cv2
 from imagecorruptions import corrupt, get_corruption_names
 from tqdm import tqdm
 from joblib import Parallel, delayed
-from typing import Union
 
 
 def parse_args():

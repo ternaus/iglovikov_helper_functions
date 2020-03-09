@@ -105,11 +105,11 @@ def mask2rle(mask: np.array) -> str:
     startpos = 0
 
     tmp = tmp.reshape(-1, 1)
-    for i in range(len(tmp)):
-        if lastColor == 0 and tmp[i] > 0:
+    for i, t in enumerate(tmp):
+        if lastColor == 0 and t > 0:
             startpos = i
             lastColor = 1
-        elif (lastColor == 1) and (tmp[i] == 0):
+        elif (lastColor == 1) and (t == 0):
             endpos = i - 1
             lastColor = 0
             rle.append(str(startpos) + " " + str(endpos - startpos + 1))

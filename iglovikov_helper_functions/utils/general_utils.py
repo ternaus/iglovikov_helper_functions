@@ -1,8 +1,9 @@
 """Set of general type helper functions"""
 from collections import defaultdict
+from typing import Any
 
 
-def group_by_key(list_dicts, key) -> defaultdict:
+def group_by_key(list_dicts: list, key: Any) -> defaultdict:
     """Groups list of dictionaries by key.
 
     >>> c = [{"a": 1, "b": "Wednesday"}, {"a": (1, 2, 3), "b": 16.5}]
@@ -17,7 +18,7 @@ def group_by_key(list_dicts, key) -> defaultdict:
     Returns:
 
     """
-    groups = defaultdict(list)
+    groups: defaultdict = defaultdict(list)
     for detection in list_dicts:
         groups[detection[key]].append(detection)
     return groups

@@ -1,12 +1,14 @@
-import cv2
-import numpy as np
-import jpeg4py
 from pathlib import Path
-from PIL import Image
 from typing import Tuple
+from typing import Union
+
+import cv2
+import jpeg4py
+import numpy as np
+from PIL import Image
 
 
-def load_rgb(image_path: (Path, str), lib="cv2") -> np.array:
+def load_rgb(image_path: Union[Path, str], lib: str = "cv2") -> np.array:
     """Load RGB image from path.
 
     Args:
@@ -30,7 +32,7 @@ def load_rgb(image_path: (Path, str), lib="cv2") -> np.array:
     raise FileNotFoundError(f"File not found {image_path}")
 
 
-def load_grayscale(mask_path: (Path, str)) -> np.array:
+def load_grayscale(mask_path: Union[Path, str]) -> np.array:
     """Load grayscale mask from path
 
     Args:
@@ -44,7 +46,7 @@ def load_grayscale(mask_path: (Path, str)) -> np.array:
     raise FileNotFoundError(f"File not found {mask_path}")
 
 
-def pad(image: np.array, factor=32, border=cv2.BORDER_REFLECT_101) -> tuple:
+def pad(image: np.array, factor: int = 32, border: int = cv2.BORDER_REFLECT_101) -> tuple:
     """Pads the image on the sides, so that it will be divisible by factor.
     Common use case: UNet type architectures.
 
@@ -95,7 +97,7 @@ def unpad(image: np.array, pads: list) -> np.array:
     return image[y_min_pad : height - y_max_pad, x_min_pad : width - x_max_pad]
 
 
-def get_size(file_path: (str, Path)) -> Tuple[int, int]:
+def get_size(file_path: Union[str, Path]) -> Tuple[int, int]:
     """Gets size of the image in a lazy way.
 
     Args:
@@ -109,7 +111,7 @@ def get_size(file_path: (str, Path)) -> Tuple[int, int]:
     return width, height
 
 
-def bgr2rgb(image):
+def bgr2rgb(image: np.array) -> np.array:
     """Convert image from bgr to rgb format
 
     Args:

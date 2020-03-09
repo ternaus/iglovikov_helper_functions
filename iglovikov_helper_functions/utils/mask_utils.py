@@ -1,15 +1,15 @@
 """Set of scripts to work with masks."""
 from itertools import groupby
 
+import cv2
 import numpy as np
 from pycocotools import mask as mutils
-from skimage import measure
-import cv2
 from scipy.ndimage import binary_dilation
+from skimage import measure
 from skimage.morphology import watershed
 
 
-def coco_seg2bbox(polygons, image_height: int, image_width: int) -> list:
+def coco_seg2bbox(polygons: list, image_height: int, image_width: int) -> list:
     """Converts polygons in COCO format to bounding box in pixels.
 
     Args:
@@ -33,7 +33,7 @@ def close_contour(contour):
     return contour
 
 
-def binary_mask2coco(binary_mask: np.array, tolerance=0):
+def binary_mask2coco(binary_mask: np.array, tolerance: int = 0) -> list:
     """Converts a binary mask to COCO polygon representation
     Args:
         binary_mask: a 2D binary numpy array where '1's represent the object
@@ -227,7 +227,7 @@ def remove_small_connected_binary(mask: np.array, min_area: int) -> np.array:
     return mask * valid_index
 
 
-def create_wsline_mask(labels: np.array, mask_dilution=4, contour_dilution=3) -> np.array:
+def create_wsline_mask(labels: np.array, mask_dilution: int = 4, contour_dilution: int = 3) -> np.array:
     """Return parts of the mask where different instances are touching or close to each other.
 
     Args:

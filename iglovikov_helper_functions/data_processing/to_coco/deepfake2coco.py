@@ -1,9 +1,9 @@
 """
-This script creates object detection annotations
+This script creates COCO annotations from deepfake annotations.
 
 annotations present in format
 
-<file_id>_faces.json
+<file_id>.json
 
 [
     "file_path": video_file_path, # video_file_name = <video_id>.mp4
@@ -15,22 +15,24 @@ annotations present in format
             "score": score  # float in [0, 1]
         }
     ]
+    "landmarks": [...]
 ]
 
 image_files:
 <video_id>_<frame_id>.jpg
+
 """
 import argparse
 import json
 from pathlib import Path
+from typing import List, Tuple
 
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from iglovikov_helper_functions.utils.general_utils import group_by_key
-
 from iglovikov_helper_functions.utils.image_utils import get_size
-from joblib import Parallel, delayed
 
 
 def fill_empty(df: pd.DataFrame) -> pd.DataFrame:
@@ -49,51 +51,183 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description="Map csv to COCO json")
 
-    parser.add_argument("-i", "--image_path", type=Path, help="Path to the jpg image files.", required=True)
-    parser.add_argument("-l", "--label_path", type=Path, help="Path to the json label files.", required=True)
     parser.add_argument(
-        "-m", "--label_mapper", type=Path, help="Path to the csv file that maps real to fake images.", required=True
+        "-id", "--deepfake_image_path", type=Path, help="Path to the jpg image files for deepfake.", required=True
     )
+    parser.add_argument(
+        "-ld", "--deepfake_label_path", type=Path, help="Path to the json label files for deepfake.", required=True
+    )
+
+    parser.add_argument(
+        "-io", "--openimages_image_path", type=Path, help="Path to the jpg image files for openimages.", required=True
+    )
+    parser.add_argument(
+        "-lo", "--openimages_label_path", type=Path, help="Path to the json label files for openimages.", required=True
+    )
+
+    parser.add_argument("-m", "--label_mapper", type=Path, help="Path to the csv file that maps real to fake images.")
     parser.add_argument(
         "-o", "--output_path", type=Path, help="Path to the json file that maps real to fake images.", required=True
     )
+
+    parser.add_argument("--exclude_folds", type=int, help="Folds that should be excluded..", nargs="*")
 
     parser.add_argument("-j", "--num_threads", type=int, help="The number of CPU threads", default=12)
     return parser.parse_args()
 
 
+def generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height):
+    return {
+        "segmentation": [],
+        "id": annotation_id,
+        "image_id": image_id,
+        "category_id": category_id,
+        "bbox": [x_min, y_min, bbox_width, bbox_height],
+        "iscrowd": 0,
+        "area": bbox_width * bbox_height,
+    }
+
+
+def generate_image_info(image_id: str, file_path: str, image_width: int, image_height: int) -> dict:
+    return {
+        "id": image_id,
+        "file_name": file_path,
+        "width": image_width,
+        "height": image_height,
+    }
+
+
 def main():
     args = parse_args()
 
-    if not args.label_mapper.suffix == ".csv":
-        raise ValueError(f"Label mapper should be csv file, but we got {args.label_mapper}.")
+    if not args.output_path.suffix == ".json":
+        raise ValueError(f"Expected json file for output path, but got {args.output_path}.")
 
-    image_file_names = [str(x) for x in sorted(args.image_path.rglob("*.jpg"))]
+    coco_categories = [{"id": 1, "name": "is_face"}, {"id": 2, "name": "real"}, {"id": 3, "name": "fake"}]
 
-    image_shape = Parallel(n_jobs=args.num_threads, prefer="threads")(
-        delayed(get_size)(x) for x in tqdm(image_file_names)
+    deepfake_image_info, deepfake_annotations = process_deepfake(
+        args.label_mapper, args.exclude_folds, args.deepfake_image_path, args.deepfake_label_path
     )
 
-    image_df = pd.DataFrame({"image_file_path": image_file_names, "size": image_shape})
+    openimages_image_info, openimages_annotations = process_openimages(
+        args.openimages_image_path, args.openimages_label_path
+    )
+
+    coco_images = deepfake_image_info + openimages_image_info
+    coco_annotations = deepfake_annotations + openimages_annotations
+
+    result = {
+        "categories": coco_categories,
+        "images": coco_images,
+        "annotations": coco_annotations,
+    }
+
+    with open(args.output_path, "w") as f:
+        json.dump(result, f, sort_keys=True, indent=4)
+
+
+def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
+    image_file_names = sorted(image_path.rglob("*.jpg"))
+
+    print(f"Processing {len(image_file_names)} for open images.")
+
+    coco_images: List[dict] = []
+    coco_annotations: List[dict] = []
+
+    for image_file_path in tqdm(image_file_names):
+        image_id = image_file_path.stem
+        json_label_path = label_path / f"{image_id}.json"
+
+        if not json_label_path.is_file():
+            continue
+
+        image_width, image_height = get_size(image_file_path)
+
+        with open(json_label_path) as f:
+            annotation = json.load(f)
+
+        coco_images += [
+            generate_image_info(
+                image_id,
+                "/".join([image_file_path.parent.parent.name, image_file_path.parent.name, image_file_path.name]),
+                image_width,
+                image_height,
+            )
+        ]
+
+        for b, boxes in enumerate(annotation["bboxes"]):
+            bbox = boxes["bbox"]
+
+            x_min, y_min, x_max, y_max = bbox
+
+            x_min = int(np.clip(x_min, 0, image_width))
+            x_max = int(np.clip(x_max, 0, image_width))
+            y_min = int(np.clip(y_min, 0, image_height))
+            y_max = int(np.clip(y_max, 0, image_height))
+
+            bbox_width = x_max - x_min
+            if bbox_width <= 0:
+                continue
+
+            bbox_height = y_max - y_min
+            if bbox_height <= 0:
+                continue
+
+            annotation_id = str(hash(f"{image_id}_{b}"))
+
+            category_id = 1
+
+            coco_annotations += [
+                generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
+            ]
+
+            category_id = 3
+
+            coco_annotations += [
+                generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
+            ]
+
+    return coco_images, coco_annotations
+
+
+def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, label_path: Path) -> Tuple[List, List]:
+    if not label_mapper.suffix == ".csv":
+        raise ValueError(f"Label mapper should be csv file, but we got {label_mapper}.")
+
+    image_file_names = [str(x) for x in sorted(image_path.rglob("*.jpg"))]
+
+    print(f"Processing {len(image_file_names)} for Deepfakes.")
+
+    image_df = pd.DataFrame({"image_file_path": image_file_names})
 
     image_df["video_id"] = image_df["image_file_path"].str.extract(r"([a-z]+)_\d+\.jpg")
     image_df["frame_id"] = image_df["image_file_path"].str.extract(r"[a-z]+_(\d+)\.jpg").astype(int)
 
-    id2label = {x.stem.replace("_faces", ""): x for x in args.label_path.rglob("*.json")}
+    id2label = {x.stem: x for x in label_path.rglob("*.json")}
 
-    label_mapping = pd.read_csv(args.label_mapper)
-
+    label_mapping = pd.read_csv(label_mapper)
+    label_mapping = label_mapping[~label_mapping["fold"].isin(exclude_folds)]
     label_mapping = fill_empty(label_mapping)
+
+    image_df = image_df[image_df["video_id"].isin(label_mapping["index"])].reset_index(drop=True)
 
     index2original = dict(zip(label_mapping["index"].values, label_mapping["original"].values))
 
+    index2target = dict(zip(label_mapping["index"].values, label_mapping["target"].values))
+
     g = image_df.groupby("video_id")
 
-    coco_images = []
-    coco_annotations = []
+    coco_images: List[dict] = []
+    coco_annotations: List[dict] = []
 
     for video_id, df in tqdm(g):
+        if video_id not in index2original:
+            continue
+
         original = index2original[video_id]
+
+        if original not in id2label:
+            continue
 
         label_file_path = id2label[original]
 
@@ -103,61 +237,63 @@ def main():
         grouped_label = group_by_key(label["bboxes"], "frame_id")
 
         for i in df.index:
+            image_file_path = Path(df.loc[i, "image_file_path"])
             frame_id = df.loc[i, "frame_id"]
-            image_width, image_height = df.loc[i, "size"]
+            image_width, image_height = get_size(image_file_path)
 
             image_id = f"{video_id}_{frame_id}"
 
-            image_file_path = Path(df.loc[i, "image_file_path"])
-
-            image_info = {
-                "id": image_id,
-                "file_name": str(image_file_path.parent.name + "/" + image_file_path.name),
-                "width": image_width,
-                "height": image_height,
-            }
+            image_info = generate_image_info(
+                image_id,
+                "/".join([image_file_path.parent.parent.name, image_file_path.parent.name, image_file_path.name]),
+                image_width,
+                image_height,
+            )
 
             for b, bbox in enumerate(grouped_label[frame_id]):
                 x_min, y_min, x_max, y_max = bbox["bbox"]
 
+                x_min = int(np.clip(x_min, 0, image_width))
+                x_max = int(np.clip(x_max, 0, image_width))
+                y_min = int(np.clip(y_min, 0, image_height))
+                y_max = int(np.clip(y_max, 0, image_height))
+
                 bbox_width = x_max - x_min
-                if bbox_width < 0:
+                if bbox_width <= 0:
                     continue
 
                 bbox_height = y_max - y_min
-                if bbox_height < 0:
+                if bbox_height <= 0:
                     continue
 
                 annotation_id = str(hash(f"{video_id}_{frame_id}_{b}"))
 
-                annotation_info = {
-                    "segmentation": [],
-                    "id": annotation_id,
-                    "image_id": image_id,
-                    "category_id": 1,  # We have only one category, faces
-                    "bbox": [x_min, y_min, bbox_width, bbox_height],
-                    "iscrowd": 0,
-                    "area": bbox_width * bbox_height,
-                }
+                category_id = 1
 
-                coco_annotations += [annotation_info]
+                coco_annotations += [
+                    generate_annotartion_info(
+                        annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height
+                    )
+                ]
+
+                target = index2target[video_id]
+
+                if target == 0:
+                    category_id = 2
+                elif target == 1:
+                    category_id = 3
+                else:
+                    raise ValueError(f"Target should be 0 or 1, but we got {target}.")
+
+                coco_annotations += [
+                    generate_annotartion_info(
+                        annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height
+                    )
+                ]
 
             coco_images += [image_info]
 
-    coco_categories = [{"id": 1, "name": "face"}]
-
-    output_coco_annotations = {
-        "categories": coco_categories,
-        "images": coco_images,
-        "annotations": coco_annotations,
-    }
-
-    output_folder = args.output_path.parent
-
-    output_folder.mkdir(exist_ok=True, parents=True)
-
-    with open(args.output_path, "w") as f:
-        json.dump(output_coco_annotations, f, sort_keys=True, indent=2)
+    return coco_images, coco_annotations
 
 
 if __name__ == "__main__":

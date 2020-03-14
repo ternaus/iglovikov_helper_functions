@@ -51,18 +51,14 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description="Map csv to COCO json")
 
-    parser.add_argument(
-        "-id", "--deepfake_image_path", type=Path, help="Path to the jpg image files for deepfake.", required=True
-    )
-    parser.add_argument(
-        "-ld", "--deepfake_label_path", type=Path, help="Path to the json label files for deepfake.", required=True
-    )
+    parser.add_argument("-id", "--deepfake_image_path", type=Path, help="Path to the jpg image files for deepfake.")
+    parser.add_argument("-ld", "--deepfake_label_path", type=Path, help="Path to the json label files for deepfake.")
 
     parser.add_argument(
-        "-io", "--openimages_image_path", type=Path, help="Path to the jpg image files for openimages.", required=True
+        "-io", "--openimages_image_path", type=Path, help="Path to the jpg image files for openimages."
     )
     parser.add_argument(
-        "-lo", "--openimages_label_path", type=Path, help="Path to the json label files for openimages.", required=True
+        "-lo", "--openimages_label_path", type=Path, help="Path to the json label files for openimages."
     )
 
     parser.add_argument("-m", "--label_mapper", type=Path, help="Path to the csv file that maps real to fake images.")
@@ -105,16 +101,24 @@ def main():
 
     coco_categories = [{"id": 1, "name": "is_face"}, {"id": 2, "name": "real"}, {"id": 3, "name": "fake"}]
 
-    deepfake_image_info, deepfake_annotations = process_deepfake(
-        args.label_mapper, args.exclude_folds, args.deepfake_image_path, args.deepfake_label_path
-    )
+    coco_images = []
+    coco_annotations = []
 
-    openimages_image_info, openimages_annotations = process_openimages(
-        args.openimages_image_path, args.openimages_label_path
-    )
+    if args.deepfake_image_path is not None and args.deepfake_label_path is not None:
+        deepfake_image_info, deepfake_annotations = process_deepfake(
+            args.label_mapper, args.exclude_folds, args.deepfake_image_path, args.deepfake_label_path
+        )
 
-    coco_images = deepfake_image_info + openimages_image_info
-    coco_annotations = deepfake_annotations + openimages_annotations
+        coco_images += deepfake_image_info
+        coco_annotations += deepfake_annotations
+
+    if args.openimages_image_path is not None and args.openimages_label_path is not None:
+        openimages_image_info, openimages_annotations = process_openimages(
+            args.openimages_image_path, args.openimages_label_path
+        )
+
+        coco_images += openimages_image_info
+        coco_annotations += openimages_annotations
 
     result = {
         "categories": coco_categories,
@@ -173,15 +177,19 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
             if bbox_height <= 0:
                 continue
 
-            annotation_id = str(hash(f"{image_id}_{b}"))
-
             category_id = 1
+
+            annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
             coco_annotations += [
                 generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
             ]
 
+            annotation_id = str(hash(f"{image_id}_{b}"))
+
             category_id = 3
+
+            annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
             coco_annotations += [
                 generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
@@ -266,9 +274,9 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
                 if bbox_height <= 0:
                     continue
 
-                annotation_id = str(hash(f"{video_id}_{frame_id}_{b}"))
-
                 category_id = 1
+
+                annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
                 coco_annotations += [
                     generate_annotartion_info(
@@ -284,6 +292,8 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
                     category_id = 3
                 else:
                     raise ValueError(f"Target should be 0 or 1, but we got {target}.")
+
+                annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
                 coco_annotations += [
                     generate_annotartion_info(

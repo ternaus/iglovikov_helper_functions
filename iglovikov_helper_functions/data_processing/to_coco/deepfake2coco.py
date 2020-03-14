@@ -112,6 +112,8 @@ def main():
         coco_images += deepfake_image_info
         coco_annotations += deepfake_annotations
 
+        print(f"Added {len(deepfake_annotations)} to deepfake.")
+
     if args.openimages_image_path is not None and args.openimages_label_path is not None:
         openimages_image_info, openimages_annotations = process_openimages(
             args.openimages_image_path, args.openimages_label_path
@@ -119,6 +121,8 @@ def main():
 
         coco_images += openimages_image_info
         coco_annotations += openimages_annotations
+
+        print(f"Added {len(openimages_annotations)} to openimages.")
 
     result = {
         "categories": coco_categories,
@@ -184,8 +188,6 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
             coco_annotations += [
                 generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
             ]
-
-            annotation_id = str(hash(f"{image_id}_{b}"))
 
             category_id = 3
 

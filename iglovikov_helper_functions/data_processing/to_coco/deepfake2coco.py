@@ -51,7 +51,6 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description="Map csv to COCO json")
 
-
     parser.add_argument("-id", "--deepfake_image_path", type=Path, help="Path to the jpg image files for deepfake.")
     parser.add_argument("-ld", "--deepfake_label_path", type=Path, help="Path to the json label files for deepfake.")
 
@@ -113,14 +112,17 @@ def main():
         coco_images += deepfake_image_info
         coco_annotations += deepfake_annotations
 
-    if args.openimages_image_path is not None and args.openimages_label_path is not None:
-        openimages_image_info, openimages_annotations = process_openimages(
-            args.openimages_image_path, args.openimages_label_path
-        )
+        print(f"Added {len(deepfake_annotations)} to deepfake.")
+
+        if args.openimages_image_path is not None and args.openimages_label_path is not None:
+            openimages_image_info, openimages_annotations = process_openimages(
+                args.openimages_image_path, args.openimages_label_path
+            )
 
         coco_images += openimages_image_info
         coco_annotations += openimages_annotations
 
+        print(f"Added {len(openimages_annotations)} to openimages.")
     result = {
         "categories": coco_categories,
         "images": coco_images,
@@ -274,7 +276,6 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
 
                 category_id = 1
 
-
                 annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
                 coco_annotations += [
@@ -301,7 +302,6 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
                 ]
 
             coco_images += [image_info]
-
     return coco_images, coco_annotations
 
 

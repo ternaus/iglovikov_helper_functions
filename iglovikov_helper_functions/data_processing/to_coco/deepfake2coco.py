@@ -72,7 +72,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height):
+def generate_annotation_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height):
     return {
         "segmentation": [],
         "id": annotation_id,
@@ -114,15 +114,16 @@ def main():
 
         print(f"Added {len(deepfake_annotations)} to deepfake.")
 
-        if args.openimages_image_path is not None and args.openimages_label_path is not None:
-            openimages_image_info, openimages_annotations = process_openimages(
-                args.openimages_image_path, args.openimages_label_path
-            )
+    if args.openimages_image_path is not None and args.openimages_label_path is not None:
+        openimages_image_info, openimages_annotations = process_openimages(
+            args.openimages_image_path, args.openimages_label_path
+        )
 
         coco_images += openimages_image_info
         coco_annotations += openimages_annotations
 
         print(f"Added {len(openimages_annotations)} to openimages.")
+
     result = {
         "categories": coco_categories,
         "images": coco_images,
@@ -184,7 +185,7 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
             annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
             coco_annotations += [
-                generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
+                generate_annotation_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
             ]
 
             category_id = 3
@@ -192,7 +193,7 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
             annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
             coco_annotations += [
-                generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
+                generate_annotation_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
             ]
 
     return coco_images, coco_annotations
@@ -279,7 +280,7 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
                 annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
                 coco_annotations += [
-                    generate_annotartion_info(
+                    generate_annotation_info(
                         annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height
                     )
                 ]
@@ -296,7 +297,7 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
                 annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 
                 coco_annotations += [
-                    generate_annotartion_info(
+                    generate_annotation_info(
                         annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height
                     )
                 ]

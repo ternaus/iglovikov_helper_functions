@@ -51,6 +51,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description="Map csv to COCO json")
 
+
     parser.add_argument("-id", "--deepfake_image_path", type=Path, help="Path to the jpg image files for deepfake.")
     parser.add_argument("-ld", "--deepfake_label_path", type=Path, help="Path to the json label files for deepfake.")
 
@@ -158,7 +159,6 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
                 image_height,
             )
         ]
-
         for b, boxes in enumerate(annotation["bboxes"]):
             bbox = boxes["bbox"]
 
@@ -184,8 +184,6 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
             coco_annotations += [
                 generate_annotartion_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
             ]
-
-            annotation_id = str(hash(f"{image_id}_{b}"))
 
             category_id = 3
 
@@ -275,6 +273,7 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
                     continue
 
                 category_id = 1
+
 
                 annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 

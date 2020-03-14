@@ -188,7 +188,7 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
                 generate_annotation_info(annotation_id, image_id, category_id, x_min, y_min, bbox_width, bbox_height)
             ]
 
-            category_id = 3
+            category_id = 2
 
             annotation_id = str(hash(f"{image_id}_{b}_{category_id}"))
 

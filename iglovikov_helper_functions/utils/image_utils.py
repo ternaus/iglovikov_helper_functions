@@ -5,7 +5,9 @@ from typing import Union
 import cv2
 import jpeg4py
 import numpy as np
+
 from PIL import Image
+from PIL.ExifTags import TAGS
 
 
 def load_rgb(image_path: Union[Path, str], lib: str = "cv2") -> np.array:
@@ -107,8 +109,29 @@ def get_size(file_path: Union[str, Path]) -> Tuple[int, int]:
 
     """
     image = Image.open(file_path)
-    width, height = image.size
+    labeled_exif = get_labeled_exif(get_exif(image))
+    if labeled_exif["Orientation"] in [6, 8]:
+        cv2_height, cv2_width = cv2.imread((str(file_path))).shape[:2]
+        height, width = image.size
+        if cv2_height != height or cv2_width != width:
+            raise ValueError(f"PIL and cv2 image shapes do not match. "
+                             f"PIL {width, height}. CV2 {cv2_width, cv2_height}.")
+    else:
+        width, height = image.size
+
     return width, height
+
+
+def get_exif(image: Image) -> dict:
+    image.verify()
+    return image._getexif()
+
+
+def get_labeled_exif(exif: dict) -> dict:
+    labeled = {}
+    for (key, val) in exif.items():
+        labeled[TAGS.get(key)] = val
+    return labeled
 
 
 def bgr2rgb(image: np.array) -> np.array:

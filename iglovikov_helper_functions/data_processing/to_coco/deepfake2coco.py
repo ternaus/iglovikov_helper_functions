@@ -143,6 +143,9 @@ def process_openimages(image_path: Path, label_path: Path) -> Tuple[List, List]:
     coco_annotations: List[dict] = []
 
     for image_file_path in tqdm(image_file_names):
+        if not image_file_path.exists():
+            continue
+
         image_id = image_file_path.stem
         json_label_path = label_path / f"{image_id}.json"
 

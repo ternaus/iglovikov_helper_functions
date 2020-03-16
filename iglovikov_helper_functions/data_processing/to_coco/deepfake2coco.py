@@ -248,7 +248,7 @@ def process_deepfake(label_mapper: Path, exclude_folds: list, image_path: Path, 
         for i in df.index:
             image_file_path = Path(df.loc[i, "image_file_path"])
 
-            if not image_file_path.exist():
+            if not image_file_path.exists():
                 continue
             frame_id = df.loc[i, "frame_id"]
             image_width, image_height = get_size(image_file_path)

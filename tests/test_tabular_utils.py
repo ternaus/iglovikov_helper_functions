@@ -122,7 +122,7 @@ def test_encoder_cyclical(cyclical):
     assert np.all(inverse_transform.columns == df.columns)
     assert np.all(df.dtypes == inverse_transform.dtypes)
 
-    assert df.equals(inverse_transform)
+    assert np.allclose(df.values, inverse_transform.values)
 
 
 @given(

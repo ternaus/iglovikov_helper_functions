@@ -114,8 +114,9 @@ def get_size(file_path: Union[str, Path]) -> Tuple[int, int]:
         cv2_height, cv2_width = cv2.imread((str(file_path))).shape[:2]
         height, width = image.size
         if cv2_height != height or cv2_width != width:
-            raise ValueError(f"PIL and cv2 image shapes do not match. "
-                             f"PIL {width, height}. CV2 {cv2_width, cv2_height}.")
+            raise ValueError(
+                f"PIL and cv2 image shapes do not match. " f"PIL {width, height}. CV2 {cv2_width, cv2_height}."
+            )
     else:
         width, height = image.size
 

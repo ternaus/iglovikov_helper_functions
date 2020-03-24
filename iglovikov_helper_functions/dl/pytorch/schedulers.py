@@ -52,8 +52,8 @@ def n01z3_sheduler(optimizer: Optimizer, lrs: List[float], epochs: List[int]) ->
     result: List[float] = []
 
     for i in range(len(lrs) - 1):
-        lr_min = lrs[i]
-        lr_max = lrs[i + 1]
+        lr_min = lrs[i + 1]
+        lr_max = lrs[i]
         epoch_min = epochs[i]
         epoch_max = epochs[i + 1]
 

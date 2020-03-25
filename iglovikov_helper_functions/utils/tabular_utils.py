@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -51,6 +51,8 @@ class LabelEncoderUnseen(LabelEncoder):
     that can work with unseen labels.
     All unseen labels are mapped to 'uknown_class'
     """
+
+    set_classes: set
 
     def __init__(self, unknown_class="unknown"):
         super().__init__()

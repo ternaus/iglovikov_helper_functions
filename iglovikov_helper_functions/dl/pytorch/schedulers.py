@@ -26,7 +26,7 @@ def get_curve(lr_min: float, lr_max: float, epoch_min: int, epoch_max: int) -> n
     return (0.5 * (lr_max - lr_min) * (np.cos(epochs * math.pi / (epoch_max - epoch_min)) + 1) + lr_min).tolist()
 
 
-def n01z3_sheduler(optimizer: Optimizer, lrs: List[float], epochs: List[int]) -> torch.optim.lr_scheduler._LRScheduler:
+def n01z3_sheduler(optimizer, lrs, epochs):
     """Creates scheduler with cos waves.
 
     >>> scheduler = n01z3_sheduler(optimizer, lrs=[1, 0.7, 0.4, 0.1, 0], epochs=[0, 20, 40, 60, 80])

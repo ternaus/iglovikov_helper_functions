@@ -88,7 +88,7 @@ def test_encoder_numerical(numerical):
 
     inverse_transform = encoder.inverse_transform(transformed)
 
-    assert df.equals(inverse_transform)
+    np.allclose(df.values, inverse_transform.values)
 
 
 @given(cyclical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 5), elements=h_float(-MIN_VALUE, MAX_VALUE)))

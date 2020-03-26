@@ -46,33 +46,35 @@ class CyclicEncoder:
         return result
 
 
-class LabelEncoderUnseen:
+class LabelEncoderUnseen(LabelEncoder):
     """Extension of sklearn.preprocessing.LabelEncoder
-
     that can work with unseen labels.
-
-    All unseen labels are mapped to np.nan
+    All unseen labels are mapped to 'uknown_class'
     """
 
-    def __init__(self):
-        self.encoder = LabelEncoder()
+    set_classes: set
+
+    def __init__(self, unknown_class="unknown"):
+        super().__init__()
+        self.unknown_class = unknown_class
 
     def fit(self, x: Union[np.array, list]) -> None:
-        self.encoder.fit([str(np.nan)] + list(x))
-        self.classes_ = self.encoder.classes_
+        super().fit([self.unknown_class] + list(x))
+        self.set_classes = set(self.classes_)
 
     def transform(self, x: Union[np.array, list]) -> np.array:
+        if isinstance(x, pd.core.series.Series):
+            x = x.values
+
         for i in range(len(x)):
-            if x[i] not in set(self.classes_):
-                x[i] = str(np.nan)
-        return self.encoder.transform(x)
+            if x[i] not in self.set_classes:
+                x[i] = self.unknown_class
+
+        return super().transform(x)
 
     def fit_transform(self, x: Union[np.array, list]) -> np.array:
         self.fit(x)
         return self.transform(x)
-
-    def inverse_transform(self, x: Union[np.array, list]) -> np.array:
-        return self.encoder.inverse_transform(x)
 
 
 class GeneralEncoder:
@@ -136,7 +138,7 @@ class GeneralEncoder:
                 x = df[column].values
 
                 if category_type == "numerical":
-                    x = np.expand_dims(x, 0)
+                    x = x.reshape(-1, 1)
 
                 encoder.fit(x)
 
@@ -154,6 +156,9 @@ class GeneralEncoder:
         result: defaultdict = defaultdict(list)
 
         for column in df.columns:
+            if column not in self.column2type:
+                continue
+
             category_type = self.column2type[column]
 
             encoder = self.encoders[category_type][column]
@@ -161,8 +166,7 @@ class GeneralEncoder:
             x = df[column].values
 
             if category_type == "numerical":
-                x = np.expand_dims(x, 0)
-                encoded = encoder.transform(x)[0]
+                encoded = encoder.transform(x.reshape(-1, 1))[:, 0]
             else:
                 encoded = encoder.transform(x)
 
@@ -187,8 +191,7 @@ class GeneralEncoder:
                 encoder = self.encoders[category_type][column_name]
 
                 if category_type == "numerical":
-                    x = np.expand_dims(x, 0)
-                    decoded_column = encoder.inverse_transform(x)[0]
+                    decoded_column = encoder.inverse_transform(x.reshape(-1, 1))[:, 0]
                 else:
                     decoded_column = encoder.inverse_transform(x)
 

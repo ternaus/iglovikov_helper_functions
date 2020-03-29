@@ -43,9 +43,6 @@ def n01z3_sheduler(optimizer: Optimizer, lrs: List[float], epochs: List[int]) ->
     lrs = sorted(lrs, reverse=True)
     epochs = sorted(epochs)
 
-    assert epochs[0] < epochs[-1]
-    assert lrs[0] > lrs[-1]
-
     if len(lrs) != len(epochs):
         raise ValueError(f"len(lrs) = {len(lrs)} but len(epochs) = {len(epochs)}")
 

@@ -7,7 +7,12 @@ from hypothesis.extra.numpy import arrays as h_arrays
 from hypothesis.strategies import characters as h_char
 from hypothesis.strategies import floats as h_float
 
-from iglovikov_helper_functions.utils.tabular_utils import CyclicEncoder, LabelEncoderUnseen, GeneralEncoder
+from iglovikov_helper_functions.utils.tabular_utils import (
+    CyclicEncoder,
+    LabelEncoderUnseen,
+    GeneralEncoder,
+    MinMaxScaler,
+)
 
 MIN_VALUE = -11
 MAX_VALUE = 17
@@ -29,6 +34,27 @@ def test_cyclic_day_hours(x):
     transformed2 = encoder2.transform(x)
 
     assert transformed2.shape[1] == 2
+
+    assert np.array_equal(transformed, transformed2)
+
+    reverse_transformed = encoder.inverse_transform(transformed)
+
+    assert x.shape == reverse_transformed.shape
+
+    assert np.allclose(x, reverse_transformed)
+
+
+@given(x=h_arrays(dtype=float, shape=ARRAY_SHAPE, elements=h_float(-MIN_VALUE, MAX_VALUE)))
+def test_min_max_scaler(x):
+    feature_range = (-1, 1)
+
+    encoder = MinMaxScaler(feature_range)
+
+    transformed = encoder.fit_transform(x)
+
+    encoder2 = MinMaxScaler(feature_range)
+    encoder2.fit(x)
+    transformed2 = encoder2.transform(x)
 
     assert np.array_equal(transformed, transformed2)
 
@@ -62,7 +88,7 @@ def test_label_encoder_unseen(x):
     assert np.all(transformed_2 == list(transformed) + list(e.transform([np.nan])))
 
 
-@given(numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 3), elements=h_float(-MIN_VALUE, MAX_VALUE)))
+@given(numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 2), elements=h_float(-MIN_VALUE, MAX_VALUE)))
 def test_encoder_numerical(numerical):
     columns_map = defaultdict(list)
 
@@ -70,11 +96,20 @@ def test_encoder_numerical(numerical):
 
     category_type = "numerical"
 
+    joined = {}
+
     for i in range(numerical.shape[1]):
         column_name = f"{category_type} {i}"
         result[column_name] = numerical[:, i]
 
         columns_map[category_type] += [column_name]
+
+        joined[column_name] = [column_name + "1", column_name + "2"]
+
+        result[column_name + "1"] = numerical[:, i] / 2
+        result[column_name + "2"] = numerical[:, i] + 10
+
+    columns_map["joined_encoders"] = joined
 
     df = pd.DataFrame(result)
 
@@ -88,7 +123,17 @@ def test_encoder_numerical(numerical):
 
     inverse_transform = encoder.inverse_transform(transformed)
 
-    np.allclose(df.values, inverse_transform.values)
+    assert list(df.columns) == list(inverse_transform.columns)
+
+    for i in range(numerical.shape[1]):
+        column_name = f"{category_type} {i}"
+        assert encoder.encoders[column_name + "1"] == encoder.encoders[column_name]
+        assert encoder.encoders[column_name + "2"] == encoder.encoders[column_name]
+
+    for column_name in df.columns:
+        assert np.allclose(df[column_name].values, inverse_transform[column_name].values)
+
+    assert np.allclose(df.values, inverse_transform.values), f"{df.values - inverse_transform.values}"
 
 
 @given(cyclical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 5), elements=h_float(-MIN_VALUE, MAX_VALUE)))
@@ -139,6 +184,8 @@ def test_encoder_categorical(categorical):
 
     category_type = "categorical"
 
+    joined_encoders = {}
+
     for i in range(categorical.shape[1]):
         column_name = f"{category_type} {i}"
         result[column_name] = categorical[:, i]
@@ -146,6 +193,15 @@ def test_encoder_categorical(categorical):
         element = column_name
 
         columns_map[category_type] += [element]
+
+        joined_encoders[column_name] = [column_name + "1", column_name + "2"]
+
+        result[column_name + "1"] = np.random.permutation(categorical[:, i])
+        result[column_name + "2"] = np.random.permutation(
+            np.concatenate([categorical[:5, i], ["Vladimir" + x for x in categorical[5:i]]])
+        )
+
+    columns_map["joined_encoders"] = joined_encoders
 
     df = pd.DataFrame(result)
 
@@ -162,11 +218,11 @@ def test_encoder_categorical(categorical):
 
 
 @given(
-    numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 3), elements=h_float(-MIN_VALUE, MAX_VALUE)),
-    cyclical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 5), elements=h_float(-MIN_VALUE, MAX_VALUE)),
+    numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 1), elements=h_float(-MIN_VALUE, MAX_VALUE)),
+    cyclical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 2), elements=h_float(-MIN_VALUE, MAX_VALUE)),
     categorical=h_arrays(
         dtype="object",
-        shape=(ARRAY_SHAPE, 7),
+        shape=(ARRAY_SHAPE, 3),
         elements=h_char(whitelist_categories=["Lu", "Ll", "Lt", "Lm", "Lo", "Nl"]),
     ),
 )
@@ -175,17 +231,31 @@ def test_encoder(numerical, cyclical, categorical):
 
     result = {}
 
+    joined_encoders = {}
+
     for feature, category_type in [(numerical, "numerical"), (cyclical, "cyclical"), (categorical, "categorical")]:
         for i in range(feature.shape[1]):
             column_name = f"{category_type} {i}"
             result[column_name] = feature[:, i]
 
-            if category_type == "cyclical":
-                element = (column_name, MAX_VALUE - MIN_VALUE)
-            else:
+            if category_type == "numerical":
+                joined_encoders[column_name] = [column_name + "1", column_name + "2"]
+                result[column_name + "1"] = feature[:, i] / 2
+                result[column_name + "2"] = feature[:, i] + 10
                 element = column_name
+            elif category_type == "categorical":
+                joined_encoders[column_name] = [column_name + "1", column_name + "2"]
+                result[column_name + "1"] = np.random.permutation(categorical[:, i])
+                result[column_name + "2"] = np.random.permutation(
+                    np.concatenate([categorical[:5, i], ["Vladimir" + x for x in categorical[5:i]]])
+                )
+                element = column_name
+            else:
+                element = (column_name, MAX_VALUE - MIN_VALUE)
 
             columns_map[category_type] += [element]
+
+    columns_map["joined_encoders"] = joined_encoders
 
     df = pd.DataFrame(result)
 

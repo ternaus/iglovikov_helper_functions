@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 from collections import OrderedDict
 import json
-
+from typing import Tuple, List
 from iglovikov_helper_functions.utils.general_utils import group_by_key
 
 
@@ -53,7 +53,7 @@ def get_ap(recalls: np.array, precisions: np.array) -> float:
     return ap
 
 
-def get_overlaps(gt_boxes: np.array, box: np.array):
+def get_overlaps(gt_boxes: np.array, box: np.array) -> np.array:
     i_xmin = np.maximum(gt_boxes[:, 0], box[0])
     i_ymin = np.maximum(gt_boxes[:, 1], box[1])
 
@@ -78,7 +78,7 @@ def get_overlaps(gt_boxes: np.array, box: np.array):
     return overlaps
 
 
-def recall_precision(gt, predictions, iou_threshold):
+def recall_precision(gt: np.array, predictions: np.array, iou_threshold: float) -> Tuple[np.array, np.array, np.array]:
     num_gts = len(gt)
     image_gts = group_by_key(gt, "image_id")
 
@@ -128,23 +128,15 @@ def recall_precision(gt, predictions, iou_threshold):
 
     recalls = tp / float(num_gts)
 
-    assert np.all(0 <= recalls) & np.all(recalls <= 1)
     # avoid divide by zero in case the first detection matches a difficult ground truth
     precisions = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
-
-    assert np.all(0 <= precisions) & np.all(precisions <= 1)
 
     ap = get_ap(recalls, precisions)
 
     return recalls, precisions, ap
 
 
-def read_json(json_path: str) -> dict:
-    with open(json_path) as f:
-        return json.load(f)
-
-
-def get_category2name(categories: list) -> OrderedDict:
+def get_category2name(categories: List[dict]) -> OrderedDict[str, str]:
     """Creates mapping from category_id to category_name
 
     Args:
@@ -164,10 +156,7 @@ def get_category2name(categories: list) -> OrderedDict:
     """
     result = OrderedDict()
     for element in categories:
-        category_id = element["id"]
-        category_name = element["name"]
-        result[category_id] = category_name
-
+        result[element["id"]] = element["name"]
     return result
 
 
@@ -179,8 +168,11 @@ if __name__ == "__main__":
     arg("-t", "--iou_threshold", type=float, help="Iou threshold", default=0.5)
     args = parser.parse_args()
 
-    gt = read_json(args.ground_truth)
-    pred = read_json(args.predictions)
+    with open(args.ground_truth) as f:
+        gt = json.load(f)
+
+    with open(args.predictions) as f:
+        pred = json.load(f)
 
     gt_annotations = gt["annotations"]
     categories = gt["categories"]
@@ -199,7 +191,7 @@ if __name__ == "__main__":
 
     aps = np.zeros(num_class_names)
 
-    class_names = []
+    class_names: List[str] = []
 
     for i, category_id in enumerate(category2name.keys()):
         if category_id in pred_by_id:  # if we predicted at leas one object for this class.
@@ -213,5 +205,5 @@ if __name__ == "__main__":
     mAP = np.mean(aps)
     print("Average per class mean average precision = ", mAP)
 
-    for i in sorted(list(zip(class_names, aps.flatten().tolist()))):
-        print(i)
+    for j in sorted(list(zip(class_names, aps.flatten().tolist()))):
+        print(j)

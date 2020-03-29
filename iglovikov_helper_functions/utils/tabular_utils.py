@@ -74,7 +74,7 @@ class MinMaxScaler:
 
         x = x.reshape(-1, 1)
 
-        return self.encoder.transform(x).T
+        return self.encoder.transform(x)
 
     def fit_transform(self, x: Union[np.array, list]) -> np.array:
         self.fit(x)

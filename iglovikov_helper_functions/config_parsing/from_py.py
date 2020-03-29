@@ -48,7 +48,7 @@ def py2dict(file_path: Union[str, Path]) -> dict:
     """
     file_path = Path(file_path).absolute()
 
-    if not file_path.suffix == ".py":
+    if file_path.suffix != ".py":
         raise TypeError(f"Only Py file can be parsed, but got {file_path.name} instead.")
 
     if not file_path.exists():

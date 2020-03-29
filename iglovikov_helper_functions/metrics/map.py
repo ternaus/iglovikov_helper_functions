@@ -10,9 +10,8 @@ import argparse
 import numpy as np
 from collections import OrderedDict
 import json
-from typing import Tuple, List, Union
+from typing import Tuple, List
 from iglovikov_helper_functions.utils.general_utils import group_by_key
-from pathlib import Path
 
 
 def get_envelope(precisions: np.array) -> np.array:
@@ -137,7 +136,7 @@ def recall_precision(gt: np.array, predictions: np.array, iou_threshold: float) 
     return recalls, precisions, ap
 
 
-def get_category2name(categories: list) -> OrderedDict:
+def get_category2name(categories: List[dict]) -> OrderedDict[str, str]:
     """Creates mapping from category_id to category_name
 
     Args:
@@ -157,10 +156,7 @@ def get_category2name(categories: list) -> OrderedDict:
     """
     result = OrderedDict()
     for element in categories:
-        category_id = element["id"]
-        category_name = element["name"]
-        result[category_id] = category_name
-
+        result[element["id"]] = element["name"]
     return result
 
 

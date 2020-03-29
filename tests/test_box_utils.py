@@ -68,7 +68,7 @@ def test_get_left_right(center, width):
 
 @given(
     x_min=h_int(min_value=0, max_value=int(IMAGE_WIDTH * 3 / 4) - 1),
-    x_max=h_int(min_value=int(IMAGE_WIDTH * 3 / 4) - 1, max_value=int(IMAGE_WIDTH - 1)),
+    x_max=h_int(min_value=int(IMAGE_WIDTH * 3 / 4), max_value=int(IMAGE_WIDTH - 1)),
     resize_coeff=h_float(min_value=0.1, max_value=10),
 )
 def test_get_coords(x_min, x_max, resize_coeff):

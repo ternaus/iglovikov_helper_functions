@@ -52,6 +52,8 @@ def test_min_max_scaler(x):
 
     transformed = encoder.fit_transform(x)
 
+    assert transformed.shape[0] == ARRAY_SHAPE
+
     encoder2 = MinMaxScaler(feature_range)
     encoder2.fit(x)
     transformed2 = encoder2.transform(x)
@@ -218,7 +220,7 @@ def test_encoder_categorical(categorical):
 
 
 @given(
-    numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 1), elements=h_float(-MIN_VALUE, MAX_VALUE)),
+    numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 5), elements=h_float(-MIN_VALUE, MAX_VALUE)),
     cyclical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 2), elements=h_float(-MIN_VALUE, MAX_VALUE)),
     categorical=h_arrays(
         dtype="object",
@@ -262,6 +264,10 @@ def test_encoder(numerical, cyclical, categorical):
     encoder = GeneralEncoder(columns_map)
 
     transformed = encoder.fit_transform(df)
+
+    for category_type in encoder.category_types:
+        for encoded in transformed[category_type]:
+            assert df.shape[0] == encoded.shape[0], f"{category_type} {encoded.shape}"
 
     assert set(columns_map.keys()) == set(transformed.keys()), f"{transformed.keys()} {columns_map.keys()}"
 

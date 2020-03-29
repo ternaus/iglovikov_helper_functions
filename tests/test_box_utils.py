@@ -23,7 +23,7 @@ def test_fix_center(position, width):
 @given(
     x_min=h_int(min_value=0, max_value=int(IMAGE_WIDTH * 3 / 4) - 1),
     y_min=h_int(min_value=0, max_value=int(IMAGE_HEIGHT * 5 / 6) - 1),
-    x_max=h_int(min_value=int(IMAGE_WIDTH * 3 / 4) - 1, max_value=int(IMAGE_WIDTH - 1)),
+    x_max=h_int(min_value=int(IMAGE_WIDTH * 3 / 4), max_value=IMAGE_WIDTH - 1),
     y_max=h_int(min_value=int(IMAGE_HEIGHT * 5 / 6), max_value=IMAGE_HEIGHT - 1),
     resize_coeff=h_float(min_value=1, max_value=10),
 )

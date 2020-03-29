@@ -63,10 +63,10 @@ class MinMaxScaler:
         x = x.reshape(-1, 1)
 
         self.encoder.fit(x)
-        self.data_min_ = self.encoder.data_min_
-        self.data_max_ = self.encoder.data_max_
-        self.data_range_ = self.encoder.data_range_
-        self.scale_ = self.encoder.scale_
+        self.data_min_ = self.encoder.data_min_  # skipcq: PYL-W0201
+        self.data_max_ = self.encoder.data_max_  # skipcq: PYL-W0201
+        self.data_range_ = self.encoder.data_range_  # skipcq: PYL-W0201
+        self.scale_ = self.encoder.scale_  # skipcq: PYL-W0201
 
     def transform(self, x: Union[np.array, list]) -> np.array:
         if not isinstance(x, type(np.array)):
@@ -120,13 +120,13 @@ class LabelEncoderUnseen(LabelEncoder):
 
 
 class Column:
-    def __init__(self, input: Any, category_type: str):
-        if len(input) == 2:
-            self.name = input[0]
-            self.amplitude = input[1]
+    def __init__(self, parameters: Any, category_type: str):
+        if len(parameters) == 2:
+            self.name = parameters[0]
+            self.amplitude = parameters[1]
 
         else:
-            self.name = input
+            self.name = parameters
 
         self.category_type = category_type
 

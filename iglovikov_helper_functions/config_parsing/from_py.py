@@ -3,7 +3,7 @@
 import sys
 from importlib import import_module
 from pathlib import Path
-
+from typing import Union
 from addict import Dict
 
 
@@ -13,9 +13,9 @@ class ConfigDict(Dict):
 
     def __getattr__(self, name):
         try:
-            value = super(ConfigDict, self).__getattr__(name)
+            value = super().__getattr__(name)
         except KeyError:
-            ex = AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, name))
+            ex = AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
         except Exception as e:
             ex = e
         else:
@@ -23,7 +23,7 @@ class ConfigDict(Dict):
         raise ex
 
 
-def py2dict(file_path: (str, Path)) -> dict:
+def py2dict(file_path: Union[str, Path]) -> dict:
     """Convert python file to dictionary.
     The main use - config parser.
 
@@ -48,9 +48,11 @@ def py2dict(file_path: (str, Path)) -> dict:
     """
     file_path = Path(file_path).absolute()
 
-    assert file_path.suffix == ".py", "Only Py file can be parsed, but got {} instead.".format(file_path.name)
+    if not file_path.suffix == ".py":
+        raise TypeError(f"Only Py file can be parsed, but got {file_path.name} instead.")
 
-    assert file_path.exists(), f"There is no file at the path {file_path}"
+    if not file_path.exists():
+        raise FileExistsError(f"There is no file at the path {file_path}")
 
     module_name = file_path.stem
 
@@ -68,7 +70,7 @@ def py2dict(file_path: (str, Path)) -> dict:
     return cfg_dict
 
 
-def py2cfg(file_path: (str, Path)):
+def py2cfg(file_path: Union[str, Path]) -> ConfigDict:
     cfg_dict = py2dict(file_path)
 
     return ConfigDict(cfg_dict)

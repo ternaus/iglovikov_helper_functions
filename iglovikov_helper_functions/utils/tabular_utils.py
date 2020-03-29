@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Union, Any
+from typing import Dict, List, Union, Any, Tuple
 
 import numpy as np
 import pandas as pd
@@ -57,10 +57,7 @@ class MinMaxScaler:
         self.feature_range = feature_range
 
     def fit(self, x: Union[list, np.array]) -> None:
-        if not isinstance(x, type(np.array)):
-            x = np.array(x)
-
-        x = x.reshape(-1, 1)
+        x = self.stratify(x, return_shape=False)
 
         self.encoder.fit(x)
         self.data_min_ = self.encoder.data_min_  # skipcq: PYL-W0201
@@ -69,23 +66,51 @@ class MinMaxScaler:
         self.scale_ = self.encoder.scale_  # skipcq: PYL-W0201
 
     def transform(self, x: Union[np.array, list]) -> np.array:
-        if not isinstance(x, type(np.array)):
-            x = np.array(x)
+        """Transforms numpy array.
+        The resulting shape is equal to the original shape of the x.
 
-        x = x.reshape(-1, 1)
+        Args:
+            x:
 
-        return self.encoder.transform(x)
+        Returns:
+
+        """
+        x, original_shape = self.stratify(x, return_shape=True)
+
+        result = self.encoder.transform(x)
+
+        return result.reshape(original_shape)
 
     def fit_transform(self, x: Union[np.array, list]) -> np.array:
         self.fit(x)
         return self.transform(x)
 
     def inverse_transform(self, x: Union[np.array, list]) -> np.array:
+        x, original_shape = self.stratify(x, return_shape=True)
+        return self.encoder.inverse_transform(x).reshape(original_shape)
+
+    @staticmethod
+    def stratify(x: Union[list, np.array], return_shape: bool = False) -> Union[np.array, Tuple[np.array, np.array]]:
+        """Transform list and numpy array of the shape (N, ) to numpy array of shape (N, 1)
+
+        Args:
+            x:
+            return_shape: If we need to return the shape of the original image.
+
+        Returns:
+
+        """
         if not isinstance(x, type(np.array)):
             x = np.array(x)
 
-        x = x.reshape(-1, 1)
-        return self.encoder.inverse_transform(x).T[0]
+        original_shape = x.shape
+
+        result = x.reshape(-1, 1)
+
+        if return_shape:
+            return result, original_shape
+        else:
+            return result
 
 
 class LabelEncoderUnseen(LabelEncoder):
@@ -104,15 +129,29 @@ class LabelEncoderUnseen(LabelEncoder):
         super().fit([self.unknown_class] + list(x))
         self.set_classes = set(self.classes_)
 
-    def transform(self, x: Union[np.array, list]) -> np.array:
+    def transform(self, x: Union[np.array, list, pd.core.series.Series]) -> Union[np.ndarray, list]:
         if isinstance(x, pd.core.series.Series):
             x = x.values
+
+        if isinstance(x, list):
+            original_type = list
+        elif isinstance(x, np.ndarray):
+            original_type = np.array
+            original_shape = x.shape
+            x = x.tolist()
+        else:
+            raise TypeError(f"Expect pd.series, list or np array but got {type(x)}")
 
         for i in range(len(x)):
             if x[i] not in self.set_classes:
                 x[i] = self.unknown_class
 
-        return super().transform(x)
+        result = super().transform(x)
+
+        if original_type == np.ndarray:
+            return np.array(result).reshape(original_shape)
+
+        return result
 
     def fit_transform(self, x: Union[np.array, list]) -> np.array:
         self.fit(x)
@@ -159,6 +198,8 @@ class GeneralEncoder:
                 "categorical": [column3, column4, ...],
                 "cyclical": [(cos(column_5) sin(column_5), (cos(column_6) sin(column_6), ...]
             }
+
+            where each array is of the shape (N, 1). The reason is that df[column].values gives an array of this type.
 
     """
 

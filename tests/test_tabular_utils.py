@@ -27,13 +27,13 @@ def test_cyclic_day_hours(x):
 
     transformed = encoder.fit_transform(x)
 
-    assert transformed.shape[1] == 2
+    assert transformed.shape == (len(x), 2)
 
     encoder2 = CyclicEncoder(amplitude)
     encoder2.fit(x)
     transformed2 = encoder2.transform(x)
 
-    assert transformed2.shape[1] == 2
+    assert transformed.shape == (len(x), 2)
 
     assert np.array_equal(transformed, transformed2)
 
@@ -52,13 +52,16 @@ def test_min_max_scaler(x):
 
     transformed = encoder.fit_transform(x)
 
-    assert transformed.shape[0] == ARRAY_SHAPE
+    assert transformed.shape == x.shape
 
     encoder2 = MinMaxScaler(feature_range)
     encoder2.fit(x)
-    transformed2 = encoder2.transform(x)
 
-    assert np.array_equal(transformed, transformed2)
+    transformed2 = encoder2.transform(x.T)
+
+    assert transformed2.shape == x.T.shape
+
+    assert np.array_equal(transformed, transformed2.T)
 
     reverse_transformed = encoder.inverse_transform(transformed)
 
@@ -267,7 +270,10 @@ def test_encoder(numerical, cyclical, categorical):
 
     for category_type in encoder.category_types:
         for encoded in transformed[category_type]:
-            assert df.shape[0] == encoded.shape[0], f"{category_type} {encoded.shape}"
+            if category_type == "cyclical":
+                assert (df.shape[0], 2) == encoded.shape, f"{category_type} {encoded.shape}"
+            else:
+                assert (df.shape[0],) == encoded.shape, f"{category_type} {encoded.shape} {df.values.shape}"
 
     assert set(columns_map.keys()) == set(transformed.keys()), f"{transformed.keys()} {columns_map.keys()}"
 

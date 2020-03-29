@@ -21,7 +21,7 @@ class CyclicEncoder:
     def fit(self, x):
         pass
 
-    def fit_transform(self, x: Union[np.array, list]) -> np.array:
+    def fit_transform(self, x: Union[np.array, list]) -> np.ndarray:
         return self.transform(x)
 
     def get_params(self) -> dict:
@@ -30,13 +30,13 @@ class CyclicEncoder:
     def set_params(self, params: dict) -> None:
         self.params = params
 
-    def inverse_transform(self, x: np.array) -> np.array:
+    def inverse_transform(self, x: np.ndarray) -> np.ndarray:
         sin_component = x[:, 1]
         cos_component = x[:, 0]
         angle = np.arctan(sin_component / cos_component) + np.pi / 2 * (1 - np.sign(cos_component))
         return angle * self.params["amplitude"] / (2 * np.pi)
 
-    def transform(self, x: Union[list, np.array]) -> np.array:
+    def transform(self, x: Union[list, np.ndarray]) -> np.ndarray:
         amplitude = self.params["amplitude"]
         argument = 2 * np.pi * x / amplitude
         cos_component = np.cos(argument)
@@ -90,7 +90,9 @@ class MinMaxScaler:
         return self.encoder.inverse_transform(x).reshape(original_shape)
 
     @staticmethod
-    def stratify(x: Union[list, np.array], return_shape: bool = False) -> Union[np.array, Tuple[np.array, np.array]]:
+    def stratify(
+        x: Union[list, np.array], return_shape: bool = False
+    ) -> Union[np.array, Tuple[np.ndarray, np.ndarray]]:
         """Transform list and numpy array of the shape (N, ) to numpy array of shape (N, 1)
 
         Args:
@@ -109,8 +111,8 @@ class MinMaxScaler:
 
         if return_shape:
             return result, original_shape
-        else:
-            return result
+
+        return result
 
 
 class LabelEncoderUnseen(LabelEncoder):

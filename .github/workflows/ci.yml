@@ -23,10 +23,10 @@ jobs:
     - name: Install dependencies
       run: |
         apt-get install libturbojpeg0
-        pip install Cython
-        pip install -r requirements.txt
-        pip install pycocotools
-        python -m pip install --upgrade pip
+#        pip install Cython
+#        pip install -r requirements.txt
+#        pip install pycocotools
+#        python -m pip install --upgrade pip
     - name: Run black
       run: black --check .
     - name: Run flake8

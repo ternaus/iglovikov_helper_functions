@@ -25,7 +25,6 @@ jobs:
         sudo python -m pip install --upgrade pip
         sudo apt-get install libturbojpeg
         sudo pip install Cython
-        sudo pip install black
         sudo pip install -r requirements.txt
         sudo pip install pycocotools
     - name: Run black

@@ -1,8 +1,6 @@
 addict
 black==19.10b0
 catalyst
-flake8
-hypothesis
 imagecorruptions
 isort
 joblib
@@ -12,7 +10,6 @@ numpy
 opencv-python
 pandas
 Pillow
-pytest
 scikit-image
 scikit-learn
 scipy

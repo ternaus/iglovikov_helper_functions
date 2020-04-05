@@ -24,9 +24,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         apt-get install libturbojpeg0
-#        pip install Cython
-#        pip install -r requirements.txt
-#        pip install pycocotools
+        pip install Cython
+        pip install -r requirements.txt
+        pip install pycocotools
     - name: Run black
       run:
         black --check .

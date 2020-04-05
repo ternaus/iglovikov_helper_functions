@@ -1,7 +1,6 @@
 addict
 black==19.10b0
 catalyst
-hypothesis
 imagecorruptions
 isort
 joblib

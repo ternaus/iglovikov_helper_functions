@@ -33,5 +33,5 @@ jobs:
       run: flake8
     - name: Run Mypy
       run: mypy iglovikov_helper_functions
-    - name: tests
-      run: pytest
+#    - name: tests
+#      run: pytest

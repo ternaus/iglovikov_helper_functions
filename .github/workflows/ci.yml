@@ -25,6 +25,7 @@ jobs:
       run: python -c "import sys; print(sys.version)"
     - name: Install dependencies
       run: |
+        python -c "import sys; print(sys.version)"
         sudo python -m pip install --upgrade pip
         sudo apt-get install libturbojpeg
         sudo pip install Cython

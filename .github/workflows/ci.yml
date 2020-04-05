@@ -25,12 +25,12 @@ jobs:
       run: python -c "import sys; print(sys.version)"
     - name: Install dependencies
       run: |
-        python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
         sudo apt-get install libturbojpeg
         pip install Cython
         pip install -r requirements.txt
         pip install pycocotools
+        pip install black flake8 mypy pytest
     - name: Run black
       run:
         black --check .

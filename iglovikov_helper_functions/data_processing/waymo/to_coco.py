@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument("-i", "--input_path", type=Path, help="Path to the folder with tfrecords.", required=True)
     parser.add_argument("-j", "--output_json_path", type=Path, help="Path save the the json with labels.")
     parser.add_argument("-o", "--output_image_path", type=Path, help="Path to save images.")
+    parser.add_argument("--num_workers", type=int, help="The number of workers to use.")
     return parser.parse_args()
 
 
@@ -58,7 +59,7 @@ def get_coco_categories() -> List[Dict[str, Any]]:
     result: List[Dict[str, Any]] = []
     while True:
         try:
-            class_name = label_pb2.Label.Type(ind)
+            class_name = label_pb2.Label.Type.Name(ind)
             result += [{"id": ind, "name": class_name}]
             ind += 1
         except ValueError:
@@ -74,7 +75,9 @@ def main():
     coco_annotations = []
 
     for tf_record_path in tqdm(sorted(args.input_path.glob("*.tfrecord"))):
-        dataset = tf.data.TFRecordDataset(str(tf_record_path), compression_type="")
+        dataset = tf.data.TFRecordDataset(
+            str(tf_record_path), compression_type="", num_parallel_reads=args.num_workers
+        )
 
         for frame_id, data in enumerate(dataset):
             frame = open_dataset.Frame()
@@ -92,37 +95,39 @@ def main():
                 image_folder.mkdir(exist_ok=True, parents=True)
                 image_path = image_folder / f"{camera_type}.jpg"
 
-                image_height, image_width = rgb_image.shape[:2]
-                labels = frame.camera_labels[camera_id].labels
-
-                if frame.camera_labels[camera_id].name != image.name:
-                    raise ValueError(
-                        f"Labels do not correspond to the provided image. "
-                        f"Image: {open_dataset.CameraName.Name.Name(image.name)} "
-                        f"Camera: {open_dataset.CameraName.Name.Name(frame.camera_labels[camera_id].name)}"
-                    )
-
                 image_id = str(Path(image_path.parent.parent.name) / Path(image_path.parent.name) / image_path.stem)
 
                 image_info = {"id": image_id, "file_name": image_id + ".jpg"}
 
-                for label in labels:
-                    annotation_id = label.id
-                    box = get_box(label.box, image_width, image_height)
+                if len(frame.camera_labels) != 0:
+                    image_height, image_width = rgb_image.shape[:2]
 
-                    annotation_info = {
-                        "id": annotation_id,
-                        "image_id": image_id,
-                        "category_id": int(label.type),
-                        "bbox": box,
-                        "iscrowd": 0,
-                        "area": box[2] * box[3],
-                        "segmentation": [],
-                    }
+                    labels = frame.camera_labels[camera_id].labels
 
-                    coco_annotations.append(annotation_info)
+                    if frame.camera_labels[camera_id].name != image.name:
+                        raise ValueError(
+                            f"Labels do not correspond to the provided image. "
+                            f"Image: {open_dataset.CameraName.Name.Name(image.name)} "
+                            f"Camera: {open_dataset.CameraName.Name.Name(frame.camera_labels[camera_id].name)}"
+                        )
 
-                coco_images.append(image_info)
+                    for label in labels:
+                        annotation_id = label.id
+                        box = get_box(label.box, image_width, image_height)
+
+                        annotation_info = {
+                            "id": annotation_id,
+                            "image_id": image_id,
+                            "category_id": int(label.type),
+                            "bbox": box,
+                            "iscrowd": 0,
+                            "area": box[2] * box[3],
+                            "segmentation": [],
+                        }
+
+                        coco_annotations.append(annotation_info)
+
+                    coco_images.append(image_info)
 
                 if args.output_image_path is not None:
                     cv2.imwrite(str(image_path), bgr_image)
@@ -134,7 +139,7 @@ def main():
             "annotations": coco_annotations,
         }
 
-        with open(args.output_json_path) as f:
+        with open(args.output_json_path, "w") as f:
             json.dump(f, output_coco_annotations)
 
 

@@ -59,7 +59,7 @@ def get_coco_categories() -> List[Dict[str, Any]]:
     result: List[Dict[str, Any]] = []
     while True:
         try:
-            class_name = label_pb2.Label.Type.Name(ind)
+            class_name = str(label_pb2.Label.Type.Name(ind))
             result += [{"id": ind, "name": class_name}]
             ind += 1
         except ValueError:
@@ -127,7 +127,7 @@ def main():
 
                         coco_annotations.append(annotation_info)
 
-                    coco_images.append(image_info)
+                coco_images.append(image_info)
 
                 if args.output_image_path is not None:
                     cv2.imwrite(str(image_path), bgr_image)
@@ -140,7 +140,7 @@ def main():
         }
 
         with open(args.output_json_path, "w") as f:
-            json.dump(f, output_coco_annotations)
+            json.dump(output_coco_annotations, f, indent=2)
 
 
 if __name__ == "__main__":

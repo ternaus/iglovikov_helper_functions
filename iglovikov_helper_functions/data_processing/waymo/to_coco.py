@@ -36,8 +36,9 @@ def parse_args():
 def get_box(box: label_pb2.Label, image_width: int, image_height: int) -> Tuple[int, int, int, int]:
     center_x = box.center_x
     center_y = box.center_y
-    box_width = box.width
-    box_height = box.height
+
+    box_width = box.length
+    box_height = box.width
 
     x_min = center_x - 0.5 * box_width
     x_max = center_x + 0.5 * box_width
@@ -55,7 +56,7 @@ def get_box(box: label_pb2.Label, image_width: int, image_height: int) -> Tuple[
 
 
 def get_coco_categories() -> List[Dict[str, Any]]:
-    ind = 1
+    ind = 0
     result: List[Dict[str, Any]] = []
     while True:
         try:
@@ -94,7 +95,6 @@ def main():
                 image_folder = output_path / tfrecord_id / str(frame_id)
                 image_folder.mkdir(exist_ok=True, parents=True)
                 image_path = image_folder / f"{camera_type}.jpg"
-
                 image_id = str(Path(image_path.parent.parent.name) / Path(image_path.parent.name) / image_path.stem)
 
                 image_info = {"id": image_id, "file_name": image_id + ".jpg"}
@@ -124,7 +124,6 @@ def main():
                             "area": box[2] * box[3],
                             "segmentation": [],
                         }
-
                         coco_annotations.append(annotation_info)
 
                 coco_images.append(image_info)

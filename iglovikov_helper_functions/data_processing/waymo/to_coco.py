@@ -102,7 +102,7 @@ def main():
                         f"Camera: {open_dataset.CameraName.Name.Name(frame.camera_labels[camera_id].name)}"
                     )
 
-                image_id = str(Path(image_path.parent.name) / image_path.name / f"{camera_type}")
+                image_id = str(Path(image_path.parent.parent.name) / Path(image_path.parent.name) / image_path.stem)
 
                 image_info = {"id": image_id, "file_name": image_id + ".jpg"}
 

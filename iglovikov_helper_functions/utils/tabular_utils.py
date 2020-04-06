@@ -16,7 +16,7 @@ class CyclicEncoder:
     params: Dict[str, float] = {}
 
     def __init__(self, amplitude):
-        self.params["amplitude"] = amplitude
+        self.amplitude = amplitude
 
     def fit(self, x):
         pass
@@ -34,10 +34,10 @@ class CyclicEncoder:
         sin_component = x[:, 1]
         cos_component = x[:, 0]
         angle = np.arctan(sin_component / cos_component) + np.pi / 2 * (1 - np.sign(cos_component))
-        return angle * self.params["amplitude"] / (2 * np.pi)
+        return angle * self.amplitude / (2 * np.pi)
 
     def transform(self, x: Union[list, np.ndarray]) -> np.ndarray:
-        amplitude = self.params["amplitude"]
+        amplitude = self.amplitude
         argument = 2 * np.pi * x / amplitude
         cos_component = np.cos(argument)
         sin_component = np.sin(argument)

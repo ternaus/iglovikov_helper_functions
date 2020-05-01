@@ -17,8 +17,6 @@ class ConfigDict(Dict):
             value = super().__getattr__(name)
         except KeyError:
             ex = AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
-        except Exception as e:
-            ex = e
         else:
             return value
         raise ex
@@ -85,5 +83,5 @@ def object_from_dict(d, parent=None, **default_kwargs):
 
     if parent is not None:
         return getattr(parent, object_type)(**kwargs)
-    else:
-        return pydoc.locate(object_type)(**kwargs)
+
+    return pydoc.locate(object_type)(**kwargs)

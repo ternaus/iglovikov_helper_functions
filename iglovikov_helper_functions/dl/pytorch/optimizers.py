@@ -4,7 +4,7 @@ From https://github.com/Yonghongwei/Gradient-Centralization
 import math
 
 import torch
-from torch.optim.optimizer import Optimizer, required
+from torch.optim.optimizer import Optimizer, required  # type: ignore
 
 
 class AdamW_GCC(Optimizer):

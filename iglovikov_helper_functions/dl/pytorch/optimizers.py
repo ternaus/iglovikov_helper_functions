@@ -30,7 +30,7 @@ class AdamW_GCC(Optimizer):
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False):
         if lr < 0:
             raise ValueError(f"Invalid learning rate: {lr}")
-        if 0.0 > eps:
+        if eps < 0:
             raise ValueError(f"Invalid epsilon value: {eps}")
         if not 0.0 <= betas[0] < 1.0:
             raise ValueError("Invalid beta parameter at index 0: {}".format(betas[0]))
@@ -103,7 +103,7 @@ class AdamW_GCC(Optimizer):
 
                 bias_correction1 = 1 - beta1 ** state["step"]
                 bias_correction2 = 1 - beta2 ** state["step"]
-                step_size = group["lr"] * math.sqrt(bias_correction2) / bias_correction1
+                step_size = group["lr"] * math.sqrt(bias_correction2) / bias_correction1  # skipcq PTC-W0028
 
                 # p.data.addcdiv_(-step_size, exp_avg, denom)
                 p.data.add_(-step_size, torch.mul(p.data, group["weight_decay"]).addcdiv_(1, exp_avg, denom))

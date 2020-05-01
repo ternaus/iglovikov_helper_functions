@@ -1,11 +1,12 @@
 """Parse python config to the dictionary. Inspired by https://github.com/open-mmlab/mmdetection."""
 
+import pydoc
 import sys
 from importlib import import_module
 from pathlib import Path
 from typing import Union
+
 from addict import Dict
-import pydoc
 
 
 class ConfigDict(Dict):
@@ -82,6 +83,6 @@ def object_from_dict(d, parent=None, **default_kwargs):
         kwargs.setdefault(name, value)
 
     if parent is not None:
-        return getattr(parent, object_type)(**kwargs)
+        return getattr(parent, object_type)(**kwargs)  # skipcq PTC-W0034
 
     return pydoc.locate(object_type)(**kwargs)

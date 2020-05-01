@@ -5,7 +5,6 @@ from typing import Union
 import cv2
 import jpeg4py
 import numpy as np
-
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -145,3 +144,24 @@ def bgr2rgb(image: np.array) -> np.array:
 
     """
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+
+def stretch_8bit(
+    bands: np.ndarray, lower_percent: int = 1, higher_percent: int = 99, exclude_zero: bool = True
+) -> np.ndarray:
+    out = np.zeros_like(bands).astype(np.float32)
+    for i in range(bands.shape[-1]):
+        a = 0
+        b = 1
+        band = bands[:, :, i].flatten()
+        if exclude_zero:
+            filtered = band[band > 0]
+        if len(filtered) == 0:
+            continue
+        c = np.percentile(filtered, lower_percent)
+        d = np.percentile(filtered, higher_percent)
+        t = a + (bands[:, :, i] - c) * (b - a) / (d - c)
+        t[t < a] = a
+        t[t > b] = b
+        out[:, :, i] = t
+    return out.astype(np.float32)

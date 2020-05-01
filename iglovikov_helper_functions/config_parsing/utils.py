@@ -5,6 +5,7 @@ from importlib import import_module
 from pathlib import Path
 from typing import Union
 from addict import Dict
+import pydoc
 
 
 class ConfigDict(Dict):
@@ -74,3 +75,15 @@ def py2cfg(file_path: Union[str, Path]) -> ConfigDict:
     cfg_dict = py2dict(file_path)
 
     return ConfigDict(cfg_dict)
+
+
+def object_from_dict(d, parent=None, **default_kwargs):
+    kwargs = d.copy()
+    object_type = kwargs.pop("type")
+    for name, value in default_kwargs.items():
+        kwargs.setdefault(name, value)
+
+    if parent is not None:
+        return getattr(parent, object_type)(**kwargs)
+    else:
+        return pydoc.locate(object_type)(**kwargs)

@@ -1,8 +1,6 @@
 addict
-black==19.10b0
 catalyst
 imagecorruptions
-isort
 joblib
 jpeg4py
 mmcv

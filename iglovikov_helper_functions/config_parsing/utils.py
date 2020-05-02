@@ -1,9 +1,11 @@
 """Parse python config to the dictionary. Inspired by https://github.com/open-mmlab/mmdetection."""
 
+import pydoc
 import sys
 from importlib import import_module
 from pathlib import Path
 from typing import Union
+
 from addict import Dict
 
 
@@ -16,8 +18,6 @@ class ConfigDict(Dict):
             value = super().__getattr__(name)
         except KeyError:
             ex = AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
-        except Exception as e:
-            ex = e
         else:
             return value
         raise ex
@@ -74,3 +74,15 @@ def py2cfg(file_path: Union[str, Path]) -> ConfigDict:
     cfg_dict = py2dict(file_path)
 
     return ConfigDict(cfg_dict)
+
+
+def object_from_dict(d, parent=None, **default_kwargs):
+    kwargs = d.copy()
+    object_type = kwargs.pop("type")
+    for name, value in default_kwargs.items():
+        kwargs.setdefault(name, value)
+
+    if parent is not None:
+        return getattr(parent, object_type)(**kwargs)  # skipcq PTC-W0034
+
+    return pydoc.locate(object_type)(**kwargs)

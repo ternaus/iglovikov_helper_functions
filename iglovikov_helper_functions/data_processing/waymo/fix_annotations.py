@@ -33,7 +33,7 @@ def main():
 
     new_categories = [
         {"id": i + 1, "name": x}
-        for i, x in enumerate([x["name"] for x in labels["categories"] if x["name"] in valid_classes])
+        for i, x in enumerate(x["name"] for x in labels["categories"] if x["name"] in valid_classes)
     ]
 
     df_annotations = pd.DataFrame.from_dict(labels["annotations"])

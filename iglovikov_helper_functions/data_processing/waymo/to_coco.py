@@ -28,8 +28,9 @@ def parse_args():
 
     parser.add_argument("-i", "--input_path", type=Path, help="Path to the folder with tfrecords.", required=True)
     parser.add_argument("-j", "--output_json_path", type=Path, help="Path save the the json with labels.")
-    parser.add_argument("-o", "--output_image_path", type=Path, help="Path to save images.")
-    parser.add_argument("--num_workers", type=int, help="The number of workers to use.")
+    parser.add_argument("-o", "--output_image_path", type=Path, help="Path to save images.", default=".")
+    parser.add_argument("--save_images", action="store_true", help="If we want to save images.")
+    parser.add_argument("--num_workers", type=int, help="The number of workers to use.", default=16)
     return parser.parse_args()
 
 
@@ -97,11 +98,16 @@ def main():
                 image_path = image_folder / f"{camera_type}.jpg"
                 image_id = str(Path(image_path.parent.parent.name) / Path(image_path.parent.name) / image_path.stem)
 
-                image_info = {"id": image_id, "file_name": image_id + ".jpg"}
+                image_height, image_width = rgb_image.shape[:2]
+
+                image_info = {
+                    "id": image_id,
+                    "file_name": image_id + ".jpg",
+                    "height": image_height,
+                    "width": image_width,
+                }
 
                 if len(frame.camera_labels) != 0:
-                    image_height, image_width = rgb_image.shape[:2]
-
                     labels = frame.camera_labels[camera_id].labels
 
                     if frame.camera_labels[camera_id].name != image.name:
@@ -112,7 +118,8 @@ def main():
                         )
 
                     for label in labels:
-                        annotation_id = label.id
+                        annotation_id = str(hash(f"{image_id}_{label.id}"))
+
                         box = get_box(label.box, image_width, image_height)
 
                         annotation_info = {
@@ -131,7 +138,7 @@ def main():
                 if args.output_image_path is not None:
                     cv2.imwrite(str(image_path), bgr_image)
 
-    if args.output_json_path is not None:
+    if args.save_images:
         output_coco_annotations = {
             "categories": get_coco_categories(),
             "images": coco_images,

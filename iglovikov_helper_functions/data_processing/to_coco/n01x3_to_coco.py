@@ -132,7 +132,7 @@ def main():
 
                 class_name = dft.loc[i, "name"]
 
-                annotation_id = str(hash(image_id + "_{}".format(i)))
+                annotation_id = str(hash(image_id + f"_{i}"))
 
                 annotation_info = {
                     "id": annotation_id,
@@ -164,7 +164,7 @@ def main():
             score = df.loc[i, "score"]
             image_id = Path(df.loc[i, "image_name"]).stem
 
-            annotation_id = str(hash(image_id + "_{}".format(i)))
+            annotation_id = str(hash(f"{image_id}_{i}"))
 
             annotation_info = {
                 "id": annotation_id,

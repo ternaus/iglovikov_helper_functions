@@ -51,30 +51,27 @@ def main():
     result = []
     temp = {}
 
-    f = open(args.input_path)
+    with open(args.input_path) as f:
+        for line_id, line in enumerate(f.readlines()):
+            if line[0] == "#":
+                if line_id != 0:
+                    result += [temp]
 
-    for line_id, line in enumerate(f.readlines()):
-        if line[0] == "#":
-            if line_id != 0:
-                result += [temp]
+                temp = {"file_name": line.replace("#", "").strip(), "annotations": []}
+            else:
+                points = line.strip().split()
 
-            temp = {"file_name": line.replace("#", "").strip(), "annotations": []}
-        else:
-            points = line.strip().split()
+                temp["annotations"] += [
+                    {
+                        "x_min": int(points[0]),
+                        "y_min": int(points[1]),
+                        "width": int(points[2]),
+                        "height": int(points[3]),
+                        "landmarks": [float(x) for x in points[4:]],
+                    }
+                ]
 
-            temp["annotations"] += [
-                {
-                    "x_min": int(points[0]),
-                    "y_min": int(points[1]),
-                    "width": int(points[2]),
-                    "height": int(points[3]),
-                    "landmarks": [float(x) for x in points[4:]],
-                }
-            ]
-
-    result += [temp]
-
-    f.close()
+        result += [temp]
 
     with open(args.output_path, "w") as f:
         json.dump(result, f, indent=2)

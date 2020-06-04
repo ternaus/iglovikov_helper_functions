@@ -51,7 +51,9 @@ def main():
     result = []
     temp = {}
 
-    for line_id, line in enumerate(open(args.input_path).readlines()):
+    f = open(args.input_path)
+
+    for line_id, line in enumerate(f.readlines()):
         if line[0] == "#":
             if line_id != 0:
                 result += [temp]
@@ -71,6 +73,8 @@ def main():
             ]
 
     result += [temp]
+
+    f.close()
 
     with open(args.output_path, "w") as f:
         json.dump(result, f, indent=2)

@@ -1,6 +1,7 @@
 """
-Maps annotations (face bounding boxes & five facial landmarks)
-https://www.dropbox.com/s/7j70r3eeepe4r2g/retinaface_gt_v1.1.zip?dl=0
+Maps annotations (face bounding boxes & five facial landmarks) from txt to json format.
+
+Download annotations at https://www.dropbox.com/s/7j70r3eeepe4r2g/retinaface_gt_v1.1.zip?dl=0
 
 from the format:
 

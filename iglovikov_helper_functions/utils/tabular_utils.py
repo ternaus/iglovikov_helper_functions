@@ -131,7 +131,7 @@ class LabelEncoderUnseen(LabelEncoder):
         super().fit([self.unknown_class] + list(x))
         self.set_classes = set(self.classes_)
 
-    def transform(self, x: Union[List[str], np.ndarray[str]]) -> Union[np.ndarray, list]:
+    def transform(self, x):
         if isinstance(x, pd.core.series.Series):
             x = x.values
 

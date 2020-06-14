@@ -332,7 +332,7 @@ class GeneralEncoder:
 
     def transform(self, df: pd.DataFrame) -> Dict[str, list]:
         if self.encoders == {}:
-            raise ValueError(f"Perform fit before calling transform.")
+            raise ValueError("Perform fit before calling transform.")
 
         result: defaultdict = defaultdict(list)
 

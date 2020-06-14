@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Union, Any, Tuple
+from typing import Dict, List, Union, Any, Tuple, Collection
 
 import numpy as np
 import pandas as pd
@@ -56,7 +56,7 @@ class MinMaxScaler:
         self.encoder = MX(feature_range=feature_range)
         self.feature_range = feature_range
 
-    def fit(self, x: Union[list, np.array]) -> None:
+    def fit(self, x: Collection[float]) -> None:
         x = self.stratify(x, return_shape=False)
 
         self.encoder.fit(x)
@@ -81,11 +81,11 @@ class MinMaxScaler:
 
         return result.reshape(original_shape)
 
-    def fit_transform(self, x: Union[np.array, list]) -> np.array:
+    def fit_transform(self, x: Collection[float]) -> np.array:
         self.fit(x)
         return self.transform(x)
 
-    def inverse_transform(self, x: Union[np.array, list]) -> np.array:
+    def inverse_transform(self, x: Collection) -> np.array:
         x, original_shape = self.stratify(x, return_shape=True)
         return self.encoder.inverse_transform(x).reshape(original_shape)
 
@@ -131,7 +131,7 @@ class LabelEncoderUnseen(LabelEncoder):
         super().fit([self.unknown_class] + list(x))
         self.set_classes = set(self.classes_)
 
-    def transform(self, x: Union[np.array, list, pd.core.series.Series]) -> Union[np.ndarray, list]:
+    def transform(self, x):
         if isinstance(x, pd.core.series.Series):
             x = x.values
 
@@ -263,7 +263,7 @@ class GeneralEncoder:
 
         return result
 
-    def _get_columns(self, category_type):
+    def _get_columns(self, category_type: str) -> List[str]:
         if category_type not in self.category_types:
             return []
 
@@ -332,7 +332,7 @@ class GeneralEncoder:
 
     def transform(self, df: pd.DataFrame) -> Dict[str, list]:
         if self.encoders == {}:
-            raise ValueError(f"Perform fit before calling transform.")
+            raise ValueError("Perform fit before calling transform.")
 
         result: defaultdict = defaultdict(list)
 
@@ -354,7 +354,7 @@ class GeneralEncoder:
     def get_params(self):
         return self.encoders, self.column2type
 
-    def inverse_transform(self, feature_dict):
+    def inverse_transform(self, feature_dict: Dict) -> pd.DataFrame:
         result = {}
 
         for category_type, columns_list in (

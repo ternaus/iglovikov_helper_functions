@@ -62,7 +62,7 @@ def main():
     with open(args.annotation_path) as f:
         labels = json.load(f)
 
-    transform = albu.Compose([albu.SmallestMaxSize(max_size=256, interpolation=cv2.INTER_LANCZOS4)])
+    transform = albu.Compose([albu.SmallestMaxSize(max_size=args.smallest_side, interpolation=cv2.INTER_LANCZOS4)])
 
     fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, face_detector="folder")
     fa_flipped = face_alignment.FaceAlignment(

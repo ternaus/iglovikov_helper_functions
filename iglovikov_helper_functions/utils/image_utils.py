@@ -169,5 +169,5 @@ def stretch_8bit(
 
 
 def get_sha256(image: np.ndarray, file_type: str = ".jpg") -> str:
-    is_success, buffer = cv2.imencode(file_type, image)
+    _, buffer = cv2.imencode(file_type, image)
     return sha256(buffer).hexdigest()

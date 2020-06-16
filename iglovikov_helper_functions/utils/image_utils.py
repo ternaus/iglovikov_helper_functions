@@ -1,3 +1,4 @@
+from hashlib import sha256
 from pathlib import Path
 from typing import Tuple
 from typing import Union
@@ -165,3 +166,8 @@ def stretch_8bit(
         t[t > b] = b
         out[:, :, i] = t
     return out.astype(np.float32)
+
+
+def get_sha256(image: np.ndarray, file_type: str = ".jpg") -> str:
+    _, buffer = cv2.imencode(file_type, image)
+    return sha256(buffer).hexdigest()

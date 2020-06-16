@@ -7,6 +7,8 @@ import jpeg4py
 import numpy as np
 from PIL import Image
 from PIL.ExifTags import TAGS
+from hashlib import md5
+import io
 
 
 def load_rgb(image_path: Union[Path, str], lib: str = "cv2") -> np.array:
@@ -165,3 +167,8 @@ def stretch_8bit(
         t[t > b] = b
         out[:, :, i] = t
     return out.astype(np.float32)
+
+
+def get_md5(image: np.ndarray, file_type: str = ".jpg") -> str:
+    is_success, buffer = cv2.imencode(file_type, image)
+    return md5(buffer).hexdigest()

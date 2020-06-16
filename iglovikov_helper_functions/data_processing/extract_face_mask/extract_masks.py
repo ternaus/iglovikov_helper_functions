@@ -9,9 +9,9 @@ pip install -U face_alignment
 
 Output:
     images
-        <md5>.jpg
+        <sha256>.jpg
     metadata
-        <md5>.json
+        <sha256>.json
 
 where each json looks like
 

@@ -34,7 +34,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from iglovikov_helper_functions.utils.image_utils import load_rgb, get_md5
+from iglovikov_helper_functions.utils.image_utils import get_sha256
 
 
 def parse_args():
@@ -144,7 +144,7 @@ def main():
         target_points, s1, s2 = extract_target_points_and_characteristic(landmarks)
         mask_rgba_crop, target_points = extract_polygon(image, target_points)
 
-        md5 = get_md5(mask_rgba_crop)
+        md5 = get_sha256(mask_rgba_crop)
 
         cv2.imwrite(str(output_image_path / f"{md5}.jpg"), cv2.cvtColor(mask_rgba_crop, cv2.COLOR_RGB2BGR))
 

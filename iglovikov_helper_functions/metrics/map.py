@@ -6,15 +6,16 @@ Expects input data in the COCO format.
 Based on https://github.com/ucbdrive/bdd-data/blob/master/bdd_data/evaluate.py
 """
 import argparse
+import json
+from collections import OrderedDict
+from typing import Tuple, List, Dict, Any
 
 import numpy as np
-from collections import OrderedDict
-import json
-from typing import Tuple, List
+
 from iglovikov_helper_functions.utils.general_utils import group_by_key
 
 
-def get_envelope(precisions: np.array) -> np.array:
+def get_envelope(precisions: np.ndarray) -> np.array:
     """Compute the envelope of the precision curve.
 
     Args:
@@ -28,7 +29,7 @@ def get_envelope(precisions: np.array) -> np.array:
     return precisions
 
 
-def get_ap(recalls: np.array, precisions: np.array) -> float:
+def get_ap(recalls: np.ndarray, precisions: np.ndarray) -> float:
     """Calculate area under precision/recall curve.
 
     Args:
@@ -53,7 +54,7 @@ def get_ap(recalls: np.array, precisions: np.array) -> float:
     return ap
 
 
-def get_overlaps(gt_boxes: np.array, box: np.array) -> np.array:
+def get_overlaps(gt_boxes: np.ndarray, box: np.ndarray) -> np.ndarray:
     i_xmin = np.maximum(gt_boxes[:, 0], box[0])
     i_ymin = np.maximum(gt_boxes[:, 1], box[1])
 
@@ -78,7 +79,9 @@ def get_overlaps(gt_boxes: np.array, box: np.array) -> np.array:
     return overlaps
 
 
-def recall_precision(gt: np.array, predictions: np.array, iou_threshold: float) -> Tuple[np.array, np.array, np.array]:
+def recall_precision(
+    gt: np.ndarray, predictions: np.ndarray, iou_threshold: float
+) -> Tuple[np.array, np.array, np.array]:
     num_gts = len(gt)
     image_gts = group_by_key(gt, "image_id")
 
@@ -136,7 +139,7 @@ def recall_precision(gt: np.array, predictions: np.array, iou_threshold: float) 
     return recalls, precisions, ap
 
 
-def get_category2name(categories: List[dict]) -> OrderedDict[str, str]:
+def get_category2name(categories: List[Dict[str, Any]]) -> OrderedDict:
     """Creates mapping from category_id to category_name
 
     Args:
@@ -161,7 +164,7 @@ def get_category2name(categories: List[dict]) -> OrderedDict[str, str]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Calcualte mAP metric for a given IOU threshold.")
+    parser = argparse.ArgumentParser("Calculate mAP metric for a given IOU threshold.")
     arg = parser.add_argument
     arg("-p", "--predictions", type=str, help="Json with predictions.", required=True)
     arg("-g", "--ground_truth", type=str, help="Json with ground truth.", required=True)

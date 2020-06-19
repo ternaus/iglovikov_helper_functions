@@ -198,7 +198,7 @@ class GeneralEncoder:
             {
                 "numerical": [column1, column2, ...],
                 "categorical": [column3, column4, ...],
-                "cyclical": [(cos(column_5) sin(column_5), (cos(column_6) sin(column_6), ...]
+                "cyclical": [(cos(column_5) sin(column_5)), (cos(column_6) sin(column_6)), ...]
             }
 
             where each array is of the shape (N, 1). The reason is that df[column].values gives an array of this type.

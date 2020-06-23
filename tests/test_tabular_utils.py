@@ -214,6 +214,10 @@ def test_encoder_categorical(categorical):
 
     transformed = encoder.fit_transform(df)
 
+    # We add "unknow category" => number of categories in encoder should be +1 to the ones in df
+    for column in columns_map["categorical"]:
+        assert df[column].nunique() + 1 == len(encoder.encoders[column].set_classes)
+
     assert set(transformed.keys()) == {category_type}
     assert set(transformed.keys()).intersection(columns_map.keys()) == set(transformed.keys())
 
@@ -267,6 +271,10 @@ def test_encoder(numerical, cyclical, categorical):
     encoder = GeneralEncoder(columns_map)
 
     transformed = encoder.fit_transform(df)
+
+    # We add "unknow category" => number of categories in encoder should be +1 to the ones in df
+    for column in columns_map["categorical"]:
+        assert df[column].nunique() + 1 == len(encoder.encoders[column].set_classes)
 
     for category_type in encoder.category_types:
         for encoded in transformed[category_type]:

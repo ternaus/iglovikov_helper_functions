@@ -208,5 +208,5 @@ if __name__ == "__main__":
     mAP = np.mean(aps)
     print("Average per class mean average precision = ", mAP)
 
-    for j in sorted(list(zip(class_names, aps.flatten().tolist()))):
+    for j in sorted(zip(class_names, aps.flatten().tolist())):
         print(j)

@@ -270,7 +270,15 @@ class GeneralEncoder:
         return [x.name for x in self.column_classes.values() if x.category_type == category_type]
 
     def fit(self, df: pd.DataFrame) -> None:
-        self.columns = list(df.columns)
+        for column in self.categorical_columns:
+            if df[column].dtype != "object":
+                raise TypeError(
+                    f"We can process only string columns as categorical. "
+                    f"We got {df[column].dtype} for {column}. "
+                    f"Please cast 'str' on the column."
+                )
+
+        self.columns = [x for x in df.columns if x in self.column2type]
         self.encoders = Addict()
 
         for column_name, subcolumn_names in self.joined_encoders.items():

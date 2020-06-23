@@ -290,3 +290,61 @@ def test_encoder(numerical, cyclical, categorical):
     assert inverse_transform.shape == df.shape
     assert np.all(inverse_transform.columns == df.columns)
     assert np.all(df.dtypes == inverse_transform.dtypes)
+
+
+@given(
+    numerical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 5), elements=h_float(-MIN_VALUE, MAX_VALUE)),
+    cyclical=h_arrays(dtype=float, shape=(ARRAY_SHAPE, 2), elements=h_float(-MIN_VALUE, MAX_VALUE)),
+    categorical=h_arrays(
+        dtype="object",
+        shape=(ARRAY_SHAPE, 3),
+        elements=h_char(whitelist_categories=["Lu", "Ll", "Lt", "Lm", "Lo", "Nl"]),
+    ),
+)
+def test_encoder_on_nonfull(numerical, cyclical, categorical):
+    """The test checks that if the dataframe has more columns than columns map - extra columns are ignored."""
+    columns_map = defaultdict(list)
+
+    result = {}
+
+    for feature, category_type in [(numerical, "numerical"), (cyclical, "cyclical"), (categorical, "categorical")]:
+        for i in range(feature.shape[1]):
+            column_name = f"{category_type} {i}"
+            result[column_name] = feature[:, i]
+
+            if category_type == "numerical":
+                result[column_name] = feature[:, i]
+                element = column_name
+            elif category_type == "categorical":
+                result[column_name] = feature[:, i]
+                element = column_name
+            else:
+                element = (column_name, MAX_VALUE - MIN_VALUE)
+
+            columns_map[category_type] += [element]
+
+    for category_type in columns_map:
+        columns_map[category_type].pop()
+
+    df = pd.DataFrame(result)
+
+    encoder = GeneralEncoder(columns_map)
+
+    transformed = encoder.fit_transform(df)
+
+    # We add "unknow category" => number of categories in encoder should be +1 to the ones in df
+    for column in columns_map["categorical"]:
+        assert df[column].nunique() + 1 == len(encoder.encoders[column].set_classes)
+
+    for category_type in encoder.category_types:
+        for encoded in transformed[category_type]:
+            if category_type == "cyclical":
+                assert (df.shape[0], 2) == encoded.shape, f"{category_type} {encoded.shape}"
+            else:
+                assert (df.shape[0],) == encoded.shape, f"{category_type} {encoded.shape} {df.values.shape}"
+
+    assert set(columns_map.keys()) == set(transformed.keys()), f"{transformed.keys()} {columns_map.keys()}"
+
+    inverse_transform = encoder.inverse_transform(transformed)
+
+    assert len(df.columns) == len(inverse_transform.columns) + len(columns_map)

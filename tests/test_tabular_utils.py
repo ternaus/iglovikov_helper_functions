@@ -218,6 +218,10 @@ def test_encoder_categorical(categorical):
     for column in columns_map["categorical"]:
         assert df[column].nunique() + 1 == len(encoder.encoders[column].set_classes)
 
+    # We know that the number of the unique categories shoudl be equal to max + 1
+    for column in transformed["categorical"]:
+        assert len(set(column)) <= max(column) + 1, f"{len(set(column))} {max(column)}"
+
     assert set(transformed.keys()) == {category_type}
     assert set(transformed.keys()).intersection(columns_map.keys()) == set(transformed.keys())
 

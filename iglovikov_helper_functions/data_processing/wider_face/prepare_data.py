@@ -23,11 +23,8 @@ to
         "file_name": <file_name>,
         "annotations": [
             {
-                "x_min": <int>,
-                "y_min": <int>,
-                "width: <int>,
-                "height": <int>,
-                "landmarks": [l1, l2, l3, ....]
+                "bbox": [x_min, x_max, y_min, y_max],
+                "landmarks": [[l1_x, l1_y], [l2_x, l2_y], ....]
             },
         ]
     }
@@ -37,6 +34,7 @@ to
 import argparse
 import json
 from pathlib import Path
+import numpy as np
 
 
 def parse_args():
@@ -52,6 +50,8 @@ def main():
     result = []
     temp = {}
 
+    valid_annotation_indices = np.array([0, 1, 3, 4, 6, 7, 9, 10, 12, 13])
+
     with open(args.input_path) as f:
         for line_id, line in enumerate(f.readlines()):
             if line[0] == "#":
@@ -62,15 +62,15 @@ def main():
             else:
                 points = line.strip().split()
 
-                temp["annotations"] += [
-                    {
-                        "x_min": int(points[0]),
-                        "y_min": int(points[1]),
-                        "width": int(points[2]),
-                        "height": int(points[3]),
-                        "landmarks": [float(x) for x in points[4:]],
-                    }
-                ]
+                x_min = int(points[0])
+                y_min = int(points[1])
+                x_max = int(points[2]) + x_min
+                y_max = int(points[3]) + x_max
+
+                landmarks = np.array([float(x) for x in points[4:]])
+                landmarks = landmarks[valid_annotation_indices].reshape(-1, 2).tolist()
+
+                temp["annotations"] += [{"x_min": [x_min, y_min, x_max, y_max], "landmarks": landmarks}]
 
         result += [temp]
 

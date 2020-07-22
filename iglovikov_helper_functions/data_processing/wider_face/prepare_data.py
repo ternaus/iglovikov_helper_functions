@@ -68,7 +68,11 @@ def main():
                 y_max = int(points[3]) + x_max
 
                 landmarks = np.array([float(x) for x in points[4:]])
-                landmarks = landmarks[valid_annotation_indices].reshape(-1, 2).tolist()
+
+                if landmarks.size > 0:
+                    landmarks = landmarks[valid_annotation_indices].reshape(-1, 2).tolist()
+                else:
+                    landmarks = []
 
                 temp["annotations"] += [{"x_min": [x_min, y_min, x_max, y_max], "landmarks": landmarks}]
 

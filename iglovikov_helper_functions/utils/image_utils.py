@@ -99,16 +99,16 @@ def unpad(image: np.array, pads: Tuple[int, int, int, int]) -> np.ndarray:
 
 
 def pad_to_size(
-    image: np.array,
     target_size: Tuple[int, int],
+    image: np.array,
     bboxes: Optional[np.ndarray] = None,
     keypoints: Optional[np.ndarray] = None,
 ) -> Dict[str, Union[np.ndarray, Tuple[int, int, int, int]]]:
     """Pads the image on the sides to the target_size
 
     Args:
-        image:
         target_size: (target_height, target_width)
+        image:
         bboxes: np.array with shape (num_boxes, 4). Each row: [x_min, y_min, x_max, y_max]
         keypoints: np.array with shape (num_keypoints, 2), each row: [x, y]
 
@@ -170,8 +170,8 @@ def pad_to_size(
 
 
 def unpad_from_size(
-    image: np.array,
     pads: Tuple[int, int, int, int],
+    image: Optional[np.array] = None,
     bboxes: Optional[np.ndarray] = None,
     keypoints: Optional[np.ndarray] = None,
 ) -> Dict[str, np.ndarray]:
@@ -193,9 +193,12 @@ def unpad_from_size(
 
     """
     x_min_pad, y_min_pad, x_max_pad, y_max_pad = pads
-    height, width = image.shape[:2]
 
-    result = {"image": image[y_min_pad : height - y_max_pad, x_min_pad : width - x_max_pad]}
+    result = {}
+
+    if image is not None:
+        height, width = image.shape[:2]
+        result["image"] = image[y_min_pad : height - y_max_pad, x_min_pad : width - x_max_pad]
 
     if bboxes is not None:
         bboxes[:, 0] -= x_min_pad

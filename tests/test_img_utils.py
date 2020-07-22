@@ -31,7 +31,7 @@ def test_pad_rgb(input_array, factor):
 )
 def test_pad_to_size(image, bboxes, keypoints, target_height, target_width):
     target_size = (target_height, target_width)
-    padded_dict = pad_to_size(image, target_size, bboxes, keypoints)
+    padded_dict = pad_to_size(target_size, image, bboxes, keypoints)
 
     unpadded_dict = unpad_from_size(**padded_dict)
 

@@ -69,6 +69,7 @@ def main():
 
                 landmarks = np.array([float(x) for x in points[4:]])
 
+
                 if landmarks.size > 0:
                     landmarks = landmarks[valid_annotation_indices].reshape(-1, 2).tolist()
                 else:

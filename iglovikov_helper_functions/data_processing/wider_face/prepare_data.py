@@ -74,7 +74,7 @@ def main():
                 else:
                     landmarks = []
 
-                temp["annotations"] += [{"x_min": [x_min, y_min, x_max, y_max], "landmarks": landmarks}]
+                temp["annotations"] += [{"bbox": [x_min, y_min, x_max, y_max], "landmarks": landmarks}]
 
         result += [temp]
 

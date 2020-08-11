@@ -2,6 +2,7 @@ addict
 catalyst
 imagecorruptions
 joblib
+jpeg4py
 numpy
 opencv-python
 pandas

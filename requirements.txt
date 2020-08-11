@@ -3,7 +3,6 @@ catalyst
 imagecorruptions
 joblib
 jpeg4py
-mmcv
 numpy
 opencv-python
 pandas
@@ -12,5 +11,3 @@ scikit-image
 scikit-learn
 scipy
 torch
-torchvision
-tqdm

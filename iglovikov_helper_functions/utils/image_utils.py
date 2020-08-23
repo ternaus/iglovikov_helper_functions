@@ -8,6 +8,16 @@ import numpy as np
 from PIL import Image
 from PIL.ExifTags import TAGS
 
+REFERENCE_FACIAL_POINTS = (
+    (30.29459953, 51.69630051),
+    (65.53179932, 51.50139999),
+    (48.02519989, 71.73660278),
+    (33.54930115, 92.3655014),
+    (62.72990036, 92.20410156),
+)
+
+DEFAULT_CROP_SIZE = (96, 112)
+
 
 def load_rgb(image_path: Union[Path, str], lib: str = "cv2") -> np.array:
     """Load RGB image from path.
@@ -289,3 +299,34 @@ def stretch_8bit(
 def get_sha256(image: np.ndarray, file_type: str = ".jpg") -> str:
     _, buffer = cv2.imencode(file_type, image)
     return sha256(buffer).hexdigest()
+
+
+def align_face(
+    image: np.ndarray,
+    source_landmarks: Union[np.ndarray, list, tuple],
+    target_landmarks: Tuple[Tuple[float, float], ...] = REFERENCE_FACIAL_POINTS,
+    crop_size: Tuple[int, int] = DEFAULT_CROP_SIZE,
+    interpolation: int = cv2.INTER_CUBIC,
+) -> np.ndarray:
+    """Perfrom Affine transform and crop face.
+
+    Use only first 3 keypoints.
+
+    Args:
+        image:
+        source_landmarks: 3+ points
+        target_landmarks: 3+ points
+        crop_size:
+        interpolation:
+
+    Returns: Aligned and cropped image.
+    """
+
+    if not len(source_landmarks) >= 3:
+        raise ValueError(f"We need at least 3 source points to perform alignment, but got {len(source_landmarks)}")
+
+    if not len(target_landmarks) >= 3:
+        raise ValueError(f"We need at least 3 source points to perform alignment, but got {len(target_landmarks)}")
+
+    transformation_matrix = cv2.getAffineTransform(np.float32(source_landmarks[:3]), np.float32(target_landmarks[:3]))
+    return cv2.warpAffine(image, transformation_matrix, (crop_size[0], crop_size[1]), flags=interpolation)

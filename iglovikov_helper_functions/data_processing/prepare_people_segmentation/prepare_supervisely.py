@@ -3,17 +3,14 @@ Process Supervisely
 """
 
 import argparse
+import base64
 import json
-import shutil
+import zlib
 from pathlib import Path
 
 import cv2
 import numpy as np
-import pandas as pd
-from pycocotools import mask as mutils
 from tqdm import tqdm
-import zlib
-import base64
 
 
 def base64_2_mask(s):

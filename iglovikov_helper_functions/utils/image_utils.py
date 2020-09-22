@@ -9,14 +9,14 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 REFERENCE_FACIAL_POINTS = (
-    (30.29459953, 51.69630051),
-    (65.53179932, 51.50139999),
-    (48.02519989, 71.73660278),
-    (33.54930115, 92.3655014),
-    (62.72990036, 92.20410156),
+    (38.29459953, 51.69630051),
+    (73.53179932, 51.50139999),
+    (56.02519989, 71.73660278),
+    (41.54930115, 92.3655014),
+    (70.72990036, 92.20410156),
 )
 
-DEFAULT_CROP_SIZE = (96, 112)
+DEFAULT_CROP_SIZE = (112, 112)
 
 
 def load_rgb(image_path: Union[Path, str], lib: str = "cv2") -> np.array:
@@ -307,26 +307,33 @@ def align_face(
     target_landmarks: Tuple[Tuple[float, float], ...] = REFERENCE_FACIAL_POINTS,
     crop_size: Tuple[int, int] = DEFAULT_CROP_SIZE,
     interpolation: int = cv2.INTER_CUBIC,
+    align_method: str = "similarity",
 ) -> np.ndarray:
-    """Perfrom Affine transform and crop face.
-
-    Use only first 3 keypoints.
+    """Perform Affine transform and crop face.
 
     Args:
         image:
-        source_landmarks: 3+ points
-        target_landmarks: 3+ points
+        source_landmarks:
+        target_landmarks:
         crop_size:
         interpolation:
+        align_method: Type of the method used for aligning
+            similarity: only rotation and shift. Uses first two points
+            cv2_affine: full affine transform. Uses first three points
+
 
     Returns: Aligned and cropped image.
     """
 
-    if not len(source_landmarks) >= 3:
-        raise ValueError(f"We need at least 3 source points to perform alignment, but got {len(source_landmarks)}")
+    if align_method == "cv2_affine":
+        transformation_matrix = cv2.getAffineTransform(
+            np.float32(source_landmarks[:3]), np.float32(target_landmarks[:3])
+        )
+    elif align_method == "similarity":
+        transformation_matrix, _ = cv2.estimateAffinePartial2D(
+            np.float32(source_landmarks), np.float32(target_landmarks)
+        )
+    else:
+        raise NotImplementedError(f"Only cv2_affine and similarity methods are supported got {align_method}")
 
-    if not len(target_landmarks) >= 3:
-        raise ValueError(f"We need at least 3 source points to perform alignment, but got {len(target_landmarks)}")
-
-    transformation_matrix = cv2.getAffineTransform(np.float32(source_landmarks[:3]), np.float32(target_landmarks[:3]))
     return cv2.warpAffine(image, transformation_matrix, (crop_size[0], crop_size[1]), flags=interpolation)

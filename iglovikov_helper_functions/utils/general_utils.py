@@ -1,6 +1,8 @@
 """Set of general type helper functions"""
 from collections import defaultdict
-from typing import Any, List
+from typing import Any, List, Union
+import hashlib
+from pathlib import Path
 
 
 def group_by_key(list_dicts: List[dict], key: Any) -> defaultdict:
@@ -22,3 +24,12 @@ def group_by_key(list_dicts: List[dict], key: Any) -> defaultdict:
     for detection in list_dicts:
         groups[detection[key]].append(detection)
     return groups
+
+
+def get_sha256(file_path: Union[str, Path]) -> str:
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read and update hash string value in blocks of 4K
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()

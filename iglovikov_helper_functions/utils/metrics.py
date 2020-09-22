@@ -43,7 +43,7 @@ def calculate_confusion_matrix_from_arrays_fast(
 
     Returns:
 
-        """
+    """
     if not prediction.max() < num_classes:
         raise ValueError(f"Max predicted class number must be equal {num_classes - 1}")
 

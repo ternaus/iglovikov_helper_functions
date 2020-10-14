@@ -19,7 +19,7 @@ def parse_args():
 
 
 def clean_pytorch_lightning_checkpoint(input_path: Path, output_path: Path, key_to_keep: str = "state_dict") -> None:
-    """Removes all key value pairs from the checkpoint dict, except one with wights.
+    """Removes all key value pairs from the checkpoint dict, except one with weights.
 
     Args:
         input_path: path to the original PyTorch checkpoint.

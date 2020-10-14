@@ -6,7 +6,20 @@ import numpy as np
 import torch
 
 
-def state_dict_from_disk(file_path: Union[Path, str], rename_in_layers: Optional[dict] = None) -> Dict[str, Any]:
+def rename_layers(state_dict: Dict[str, Any], rename_in_layers: Dict[str, Any]) -> Dict[str, Any]:
+    result = {}
+    for key, value in state_dict.items():
+        for key_r, value_r in rename_in_layers.items():
+            key = re.sub(key_r, value_r, key)
+
+        result[key] = value
+
+    return result
+
+
+def state_dict_from_disk(
+    file_path: Union[Path, str], rename_in_layers: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """Loads PyTorch checkpoint from disk, optionally renaming layer names.
 
     Args:
@@ -24,15 +37,7 @@ def state_dict_from_disk(file_path: Union[Path, str], rename_in_layers: Optional
         state_dict = checkpoint
 
     if rename_in_layers is not None:
-
-        result = {}
-        for key, value in state_dict.items():
-            for key_r, value_r in rename_in_layers.items():
-                key = re.sub(key_r, value_r, key)
-
-            result[key] = value
-
-        state_dict = result
+        state_dict = rename_layers(state_dict, rename_in_layers)
 
     return state_dict
 

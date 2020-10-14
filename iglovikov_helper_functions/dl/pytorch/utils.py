@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 from typing import Union, Optional, Dict, Any
 
+import numpy as np
 import torch
 
 
@@ -34,3 +35,8 @@ def state_dict_from_disk(file_path: Union[Path, str], rename_in_layers: Optional
         state_dict = result
 
     return state_dict
+
+
+def tensor_from_rgb_image(image: np.ndarray) -> torch.Tensor:
+    image = np.transpose(image, (2, 0, 1))
+    return torch.from_numpy(image)

@@ -38,6 +38,7 @@ jobs:
         pip install Cython
         pip install -r requirements.txt
         pip install pycocotools
+        pip install shapely
         pip install black flake8 mypy pytest hypothesis
     - name: Run black
       run:

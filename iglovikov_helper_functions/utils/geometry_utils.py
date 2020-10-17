@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Tuple
 
 import numpy as np
 
@@ -24,23 +24,19 @@ class Line:
         """
         return self.a * point[0] + self.b * point[1] + self.c
 
-    def intersection(self, other: "Line") -> float:
+    def intersection(self, other: "Line") -> Tuple[float, float]:
         # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Using_homogeneous_coordinates
 
         w = self.a * other.b - self.b * other.a
 
-        if w == 0:
-            return np.array([0, 0])
-
-        return np.cross([self.a, self.b, self.c], [other.a, other.b, other.c])[:2] / w
+        return (self.b * other.c - self.c * other.b) / w, (self.c * other.a - self.a * other.c) / w
 
     def __repr__(self):
         return f"({self.a}) * x + ({self.b}) * y + ({self.c}) = 0"
 
 
 def intersection_rectangles(
-    rectangle_a: Union[np.ndarray, List[List[float]], List[np.ndarray]],
-    rectangle_b: Union[np.ndarray, List[List[float]], List[np.ndarray]],
+    rectangle_a: Union[np.ndarray, List[List[float]]], rectangle_b: Union[np.ndarray, List[List[float]]]
 ) -> float:
     """Finds intersection of two rotated rectangles.
 
@@ -53,6 +49,12 @@ def intersection_rectangles(
     Returns:
 
     """
+
+    if isinstance(rectangle_a, np.ndarray):
+        rectangle_a = rectangle_a.tolist()
+
+    if isinstance(rectangle_b, np.ndarray):
+        rectangle_b = rectangle_b.tolist()
 
     # Use the vertices of the first rectangle as
     # starting vertices of the intersection polygon.

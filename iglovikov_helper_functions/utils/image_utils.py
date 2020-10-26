@@ -1,6 +1,6 @@
 from hashlib import sha256
 from pathlib import Path
-from typing import Tuple, Union, Optional, Dict
+from typing import Tuple, Union, Optional, Dict, List
 
 import cv2
 import jpeg4py
@@ -304,8 +304,8 @@ def get_sha256(image: np.ndarray, file_type: str = ".jpg") -> str:
 def align_face(
     image: np.ndarray,
     source_landmarks: Union[np.ndarray, list, tuple],
-    target_landmarks: Tuple[Tuple[float, float], ...] = REFERENCE_FACIAL_POINTS,
-    crop_size: Tuple[int, int] = DEFAULT_CROP_SIZE,
+    target_landmarks: Union[np.ndarray, Tuple[Tuple[float, float], ...]] = REFERENCE_FACIAL_POINTS,
+    crop_size: Union[List[int], np.ndarray, Tuple[int, int]] = DEFAULT_CROP_SIZE,
     interpolation: int = cv2.INTER_CUBIC,
     align_method: str = "similarity",
 ) -> np.ndarray:

@@ -1,6 +1,7 @@
 import argparse
 from collections import namedtuple
 from pathlib import Path
+from typing import Tuple
 
 import cv2
 import numpy as np
@@ -97,7 +98,7 @@ def process_image(file_name: Path, target_folder: Path) -> None:
     cv2.imwrite(str(target_folder / file_name.stem).replace("_leftImg8bit", "") + ".jpg", img)
 
 
-def prepare_images(data_path: Path, sets=("train", "val", "test")) -> None:
+def prepare_images(data_path: Path, sets: Tuple[str, ...] = ("train", "val", "test")) -> None:
     for _set in sets:
         set_folder = data_path / _set
         set_folder.mkdir(exist_ok=True, parents=True)
@@ -122,7 +123,7 @@ def process_mask(file_name: Path, mapping_dict: dict, target_folder: Path) -> No
         cv2.imwrite(str(target_folder / file_name.name).replace("_gtFine_labelIds", ""), new_mask)
 
 
-def prepare_masks(data_path: Path, sets=("train", "val", "test")) -> None:
+def prepare_masks(data_path: Path, sets: Tuple[str, ...] = ("train", "val", "test")) -> None:
     mapping_dict = get_mapping_dict()
 
     for _set in sets:

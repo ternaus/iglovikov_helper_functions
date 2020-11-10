@@ -1,6 +1,6 @@
 from hashlib import sha256
 from pathlib import Path
-from typing import Tuple, Union, Optional, Dict, List
+from typing import Dict, List, Optional, Tuple, Union
 
 import cv2
 import jpeg4py

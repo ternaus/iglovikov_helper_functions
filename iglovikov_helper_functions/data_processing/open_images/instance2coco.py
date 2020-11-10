@@ -30,8 +30,8 @@ from joblib import Parallel, delayed
 from PIL import Image
 from tqdm import tqdm
 
-from iglovikov_helper_functions.utils.mask_utils import binary_mask2coco, coco_seg2bbox
 from iglovikov_helper_functions.utils.image_utils import load_grayscale
+from iglovikov_helper_functions.utils.mask_utils import binary_mask2coco, coco_seg2bbox
 
 
 def get_annotation_info(annotation: pd.DataFrame, i: int, hash2id: dict, image_sizes: dict, mask_path: Path) -> dict:

@@ -70,12 +70,13 @@ If there is an image without mask or mask without image => removed.
 import argparse
 import shutil
 from pathlib import Path
+from typing import List, Tuple
 
 import cv2
 import numpy as np
+from joblib import Parallel, delayed
 from scipy import stats
 from tqdm import tqdm
-from joblib import Parallel, delayed
 
 
 def parse_args():
@@ -87,7 +88,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def prepare_folders(data_path: Path) -> tuple:
+def prepare_folders(data_path: Path) -> Tuple[Path, Path]:
     train_path = data_path / "train"
 
     train_image_path = train_path / "images"
@@ -113,8 +114,8 @@ def get_mapping() -> np.array:
     return mapping
 
 
-def merge_masks(file_path: Path):
-    mask_list = []
+def merge_masks(file_path: Path) -> None:
+    mask_list: List[np.ndarray] = []
     final_mask_path = file_path.parent.parent.parent / "train" / "masks" / (file_path.stem + ".png")
 
     for num_expert in range(1, 6 + 1):

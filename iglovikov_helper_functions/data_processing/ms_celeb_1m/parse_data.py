@@ -3,9 +3,10 @@
 import argparse
 import base64
 import csv
-from tqdm import tqdm
 from pathlib import Path
+
 from joblib import Parallel, delayed
+from tqdm import tqdm
 
 
 def get_args():

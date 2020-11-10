@@ -11,10 +11,12 @@ The script creates new folder for files and copies them from the old with respec
 for relabeled files, new file name is sha256 hash.
 """
 import argparse
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 import pandas as pd
 from tqdm import tqdm
+
 from iglovikov_helper_functions.utils.general_utils import get_sha256
 
 

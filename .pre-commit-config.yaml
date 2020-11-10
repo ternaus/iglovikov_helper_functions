@@ -1,5 +1,10 @@
 exclude: _pb2\.py$
 repos:
+- repo: https://github.com/pre-commit/mirrors-isort
+  rev: f0001b2  # Use the revision sha / tag you want to point at
+  hooks:
+    - id: isort
+      args: ["--profile", "black"]
 - repo: https://github.com/psf/black
   rev: 20.8b1
   hooks:

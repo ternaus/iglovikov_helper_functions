@@ -6,8 +6,9 @@ annotation_id = str(hash(f"{image_id}_{label.id}"))
 and adds width, height to images
 """
 import argparse
-from pathlib import Path
 import json
+from pathlib import Path
+
 import pandas as pd
 from tqdm import tqdm
 

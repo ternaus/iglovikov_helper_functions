@@ -6,7 +6,10 @@ from hypothesis.strategies import floats as h_float
 from hypothesis.strategies import integers as h_int
 from shapely.geometry import Polygon
 
-from iglovikov_helper_functions.utils.geometry_utils import intersection_rectangles, Line
+from iglovikov_helper_functions.utils.geometry_utils import (
+    Line,
+    intersection_rectangles,
+)
 
 
 class VectorReference:

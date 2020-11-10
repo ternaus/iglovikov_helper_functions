@@ -9,8 +9,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from PIL import Image
+from tqdm import tqdm
+
 from iglovikov_helper_functions.utils.mask_utils import rle2mask
 
 

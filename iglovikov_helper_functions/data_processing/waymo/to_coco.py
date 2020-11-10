@@ -10,7 +10,7 @@ python iglovikov_helper_functions/data_processing/waymo/to_coco.py
 import argparse
 import json
 from pathlib import Path
-from typing import Tuple, List, Dict, Any
+from typing import Any, Dict, List, Tuple
 
 import cv2
 import numpy as np

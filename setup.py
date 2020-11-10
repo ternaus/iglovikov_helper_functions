@@ -1,8 +1,10 @@
 import io
 import os
+import re
 import sys
 from shutil import rmtree
-import re
+from typing import List
+
 from setuptools import Command, find_packages, setup
 
 # Package meta-data.
@@ -53,7 +55,7 @@ class UploadCommand(Command):
     """Support setup.py upload."""
 
     description = "Build and publish the package."
-    user_options = []
+    user_options: List = []
 
     @staticmethod
     def status(s):
@@ -74,13 +76,13 @@ class UploadCommand(Command):
             pass
 
         self.status("Building Source and Wheel (universal) distribution...")
-        os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
+        os.system(f"{sys.executable} setup.py sdist bdist_wheel --universal")
 
         self.status("Uploading the package to PyPI via Twine...")
         os.system("twine upload dist/*")
 
         self.status("Pushing git tags...")
-        os.system("git tag v{0}".format(about["__version__"]))
+        os.system("git tag v{}".format(about["__version__"]))
         os.system("git push --tags")
 
         sys.exit()

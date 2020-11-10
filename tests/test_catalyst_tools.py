@@ -1,8 +1,9 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
+
 from iglovikov_helper_functions.utils.metrics import (
-    calculate_confusion_matrix_from_arrays_fast,
     calculate_confusion_matrix_from_arrays,
+    calculate_confusion_matrix_from_arrays_fast,
 )
 
 

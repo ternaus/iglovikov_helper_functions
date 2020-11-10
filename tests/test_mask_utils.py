@@ -12,10 +12,10 @@ from iglovikov_helper_functions.utils.mask_utils import (
     kaggle_rle_decode,
     kaggle_rle_encode,
     mask2rle,
-    rle2mask,
     one_hot,
-    reverse_one_hot,
     remove_small_connected_binary,
+    reverse_one_hot,
+    rle2mask,
 )
 
 
@@ -81,7 +81,6 @@ def test_kaggle_rle(mask):
     min_area=h_int(0, 100),
 )
 def test_remove_small_connected(mask, min_area):
-
     filtered_mask = remove_small_connected_binary(mask, min_area)
 
     assert filtered_mask.shape == mask.shape

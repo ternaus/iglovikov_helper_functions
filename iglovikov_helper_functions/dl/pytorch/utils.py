@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Union, Optional, Dict, Any
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 import torch

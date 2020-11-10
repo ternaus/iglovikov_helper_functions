@@ -1,9 +1,13 @@
-from iglovikov_helper_functions.metrics.iou import calculate_ious_global
 import argparse
-import numpy as np
-from iglovikov_helper_functions.data_processing.cityscapes.parse_cityscapes import labels
 from pathlib import Path
+
+import numpy as np
 import pandas as pd
+
+from iglovikov_helper_functions.data_processing.cityscapes.parse_cityscapes import (
+    labels,
+)
+from iglovikov_helper_functions.metrics.iou import calculate_ious_global
 
 
 def get_mapping_dict():

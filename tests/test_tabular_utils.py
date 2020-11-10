@@ -9,8 +9,8 @@ from hypothesis.strategies import floats as h_float
 
 from iglovikov_helper_functions.utils.tabular_utils import (
     CyclicEncoder,
-    LabelEncoderUnseen,
     GeneralEncoder,
+    LabelEncoderUnseen,
     MinMaxScaler,
 )
 

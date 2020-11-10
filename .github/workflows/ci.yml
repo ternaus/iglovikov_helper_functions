@@ -39,7 +39,7 @@ jobs:
         pip install -r requirements.txt
         pip install pycocotools
         pip install shapely
-        pip install black flake8 mypy pytest hypothesis
+        pip install black flake8 mypy pytest hypothesis isort
     - name: Run black
       run:
         black --check .
@@ -47,6 +47,8 @@ jobs:
       run: flake8
     - name: Run Mypy
       run: mypy iglovikov_helper_functions
+    - name: Run isort
+      run: isort --profile black iglovikov_helper_functions
     - name: tests
       run: |
        pip install .[tests]

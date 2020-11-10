@@ -27,15 +27,17 @@ pip install face_alignment
 
 """
 import argparse
-from pathlib import Path
 import json
+from pathlib import Path
+
 import albumentations as albu
-from tqdm import tqdm
-import torch
-import face_alignment
 import cv2
-from iglovikov_helper_functions.utils.box_utils import resize
+import face_alignment
 import numpy as np
+import torch
+from tqdm import tqdm
+
+from iglovikov_helper_functions.utils.box_utils import resize
 
 
 def parse_args():

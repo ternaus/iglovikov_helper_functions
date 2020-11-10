@@ -3,7 +3,12 @@ from hypothesis import given
 from hypothesis.extra.numpy import arrays as h_arrays
 from hypothesis.strategies import integers as h_int
 
-from iglovikov_helper_functions.utils.image_utils import pad, unpad, unpad_from_size, pad_to_size
+from iglovikov_helper_functions.utils.image_utils import (
+    pad,
+    pad_to_size,
+    unpad,
+    unpad_from_size,
+)
 
 
 @given(input_array=h_arrays(dtype=np.uint8, shape=(351, 619)), factor=h_int(min_value=1, max_value=65))

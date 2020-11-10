@@ -1,6 +1,7 @@
 """Calculate Mean Average Precision on the ground truth and predictions in the COCO format."""
 
 import argparse
+
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 

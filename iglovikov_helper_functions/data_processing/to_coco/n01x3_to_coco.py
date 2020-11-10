@@ -55,8 +55,9 @@ WARNING! To make ground_truth and predictions consistent make sure that they hav
 Based on the request from Arthur Kuzin (n01z3).
 """
 import argparse
-from pathlib import Path
 import json
+from pathlib import Path
+
 import pandas as pd
 from tqdm import tqdm
 

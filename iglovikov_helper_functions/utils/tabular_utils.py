@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Union, Any, Tuple, Collection
+from typing import Any, Collection, Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd

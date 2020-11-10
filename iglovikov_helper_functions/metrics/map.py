@@ -8,7 +8,7 @@ Based on https://github.com/ucbdrive/bdd-data/blob/master/bdd_data/evaluate.py
 import argparse
 import json
 from collections import OrderedDict
-from typing import Tuple, List, Dict, Any
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 

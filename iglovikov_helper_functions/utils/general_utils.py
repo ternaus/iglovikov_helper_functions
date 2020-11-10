@@ -1,8 +1,8 @@
 """Set of general type helper functions"""
-from collections import defaultdict
-from typing import Any, List, Union
 import hashlib
+from collections import defaultdict
 from pathlib import Path
+from typing import Any, List, Union
 
 
 def group_by_key(list_dicts: List[dict], key: Any) -> defaultdict:

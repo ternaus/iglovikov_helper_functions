@@ -66,7 +66,13 @@ def main():
                 x_min = int(points[0])
                 y_min = int(points[1])
                 x_max = int(points[2]) + x_min
-                y_max = int(points[3]) + x_max
+                y_max = int(points[3]) + y_min
+
+                x_min = max(x_min, 0)
+                y_min = max(y_min, 0)
+
+                x_max = max(x_min + 1, x_max)
+                y_max = max(y_min + 1, y_max)
 
                 landmarks = np.array([float(x) for x in points[4:]])
 

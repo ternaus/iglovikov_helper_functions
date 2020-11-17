@@ -56,7 +56,7 @@ class MinMaxScaler:
         self.encoder = MX(feature_range=feature_range)
         self.feature_range = feature_range
 
-    def fit(self, x: Collection[float]) -> None:
+    def fit(self, x):
         x = self.stratify(x, return_shape=False)
 
         self.encoder.fit(x)
@@ -81,7 +81,7 @@ class MinMaxScaler:
 
         return result.reshape(original_shape)
 
-    def fit_transform(self, x: Collection[float]) -> np.array:
+    def fit_transform(self, x):
         self.fit(x)
         return self.transform(x)
 

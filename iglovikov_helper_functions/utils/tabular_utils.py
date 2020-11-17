@@ -144,7 +144,7 @@ class LabelEncoderUnseen(LabelEncoder):
         else:
             raise TypeError(f"Expect pd.series, list or np array but got {type(x)}")
 
-        for i in range(len(x)):
+        for i, _ in enumerate(x):
             if x[i] not in self.set_classes:
                 x[i] = self.unknown_class
 

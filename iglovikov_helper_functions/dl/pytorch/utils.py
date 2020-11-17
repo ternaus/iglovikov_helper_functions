@@ -43,5 +43,5 @@ def state_dict_from_disk(
 
 
 def tensor_from_rgb_image(image: np.ndarray) -> torch.Tensor:
-    image = np.transpose(image, (2, 0, 1))
+    image = np.ascontiguousarray(np.transpose(image, (2, 0, 1)))
     return torch.from_numpy(image)

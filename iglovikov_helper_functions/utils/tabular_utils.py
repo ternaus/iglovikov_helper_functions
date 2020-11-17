@@ -56,7 +56,7 @@ class MinMaxScaler:
         self.encoder = MX(feature_range=feature_range)
         self.feature_range = feature_range
 
-    def fit(self, x: Collection[float]) -> None:
+    def fit(self, x):
         x = self.stratify(x, return_shape=False)
 
         self.encoder.fit(x)
@@ -81,7 +81,7 @@ class MinMaxScaler:
 
         return result.reshape(original_shape)
 
-    def fit_transform(self, x: Collection[float]) -> np.array:
+    def fit_transform(self, x):
         self.fit(x)
         return self.transform(x)
 
@@ -144,7 +144,7 @@ class LabelEncoderUnseen(LabelEncoder):
         else:
             raise TypeError(f"Expect pd.series, list or np array but got {type(x)}")
 
-        for i in range(len(x)):
+        for i, _ in enumerate(x):
             if x[i] not in self.set_classes:
                 x[i] = self.unknown_class
 

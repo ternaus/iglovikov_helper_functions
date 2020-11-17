@@ -52,13 +52,13 @@ def main():
                     y = person["bitmap"]["origin"][1]
                     x = person["bitmap"]["origin"][0]
                     msk[y : y + pmsk.shape[0], x : x + pmsk.shape[1], 0] += pmsk
-                if person.get("points") and len(person.get("points").get("exterior")):
+                if person.get("points") and person.get("points").get("exterior"):
                     cv2.fillPoly(
                         msk,
                         [np.array(person["points"]["exterior"], dtype=np.int32)],
                         (255, 255, 255),
                     )
-                if person.get("points") and len(person.get("points").get("interior")):
+                if person.get("points") and person.get("points").get("interior"):
                     for inter in person["points"]["interior"]:
                         cv2.fillPoly(msk, [np.array(inter, dtype=np.int32)], (0, 0, 0))
 

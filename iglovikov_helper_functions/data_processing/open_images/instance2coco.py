@@ -110,12 +110,11 @@ def get_name2size(image_path: Path, num_jobs: int, extenstion: str = "jpg", id_t
 
     def helper(x):
         image = Image.open(x)
+
         if id_type == "stem":
             return x.stem, image.size
-        elif id_type == "name":
-            return x.name, image.size
-        else:
-            raise NotImplementedError("only name and stem are supported")
+
+        return x.name, image.size
 
     sizes = Parallel(n_jobs=num_jobs, prefer="threads")(
         delayed(helper)(file_name) for file_name in tqdm(sorted(image_path.glob(f"*.{extenstion}")))

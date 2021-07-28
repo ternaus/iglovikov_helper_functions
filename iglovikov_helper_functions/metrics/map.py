@@ -49,9 +49,7 @@ def get_ap(recalls: np.ndarray, precisions: np.ndarray) -> float:
     # to calculate area under PR curve, look for points where X axis (recall) changes value
     i = np.where(recalls[1:] != recalls[:-1])[0]
 
-    # and sum (\Delta recall) * prec
-    ap = np.sum((recalls[i + 1] - recalls[i]) * precisions[i + 1])
-    return ap
+    return np.sum((recalls[i + 1] - recalls[i]) * precisions[i + 1])
 
 
 def get_overlaps(gt_boxes: np.ndarray, box: np.ndarray) -> np.ndarray:
@@ -74,9 +72,7 @@ def get_overlaps(gt_boxes: np.ndarray, box: np.ndarray) -> np.ndarray:
 
     union = box[2] * box[3] + gt_boxes[:, 2] * gt_boxes[:, 3] - intersection
 
-    overlaps = intersection / (union + 1e-7)
-
-    return overlaps
+    return intersection / (union + 1e-7)
 
 
 def recall_precision(
@@ -110,7 +106,7 @@ def recall_precision(
             gt_boxes = []
             gt_checked = None
 
-        if len(gt_boxes) > 0:
+        if gt_boxes:
             overlaps = get_overlaps(gt_boxes, box)
 
             for overlap_idx, overlap in enumerate(overlaps):

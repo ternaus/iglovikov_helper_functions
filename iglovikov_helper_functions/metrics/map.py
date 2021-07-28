@@ -120,6 +120,7 @@ def recall_precision(
 
         if jmax > -1:
             tp[prediction_index] = 1.0
+            gt_checked[jmax] = 1
         else:
             fp[prediction_index] = 1.0
 

@@ -100,7 +100,7 @@ def recall_precision(
     for prediction_index, prediction in enumerate(predictions):
         box = prediction["bbox"]
 
-        max_overlap = -np.inf
+        max_overlap = iou_threshold
         jmax = -1
 
         try:
@@ -113,15 +113,13 @@ def recall_precision(
         if len(gt_boxes) > 0:
             overlaps = get_overlaps(gt_boxes, box)
 
-            max_overlap = np.max(overlaps)
-            jmax = np.argmax(overlaps)
+            for overlap_idx, overlap in enumerate(overlaps):
+                if gt_checked[overlap_idx] == 0 and overlap > max_overlap:
+                    max_overlap = overlap
+                    jmax = overlap_idx
 
-        if max_overlap >= iou_threshold:
-            if gt_checked[jmax] == 0:
-                tp[prediction_index] = 1.0
-                gt_checked[jmax] = 1
-            else:
-                fp[prediction_index] = 1.0
+        if jmax > -1:
+            tp[prediction_index] = 1.0
         else:
             fp[prediction_index] = 1.0
 
